@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "installMethod": "npm",
+  "devDirSubfolder": "pnpm",
+  "store": {
+    "setStorePath": true,
+    "storePath": "E:\\dev-tool\\pnpm\\store"
+  },
+  "path": {
+    "updateUserPath": true
+  }
+}

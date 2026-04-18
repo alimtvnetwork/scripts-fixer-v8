@@ -1,0 +1,16 @@
+{
+  "version": "0.7.1",
+  "tag": "v0.7.1",
+  "date": "2026-04-07",
+  "summary": "Combo keywords, Simple Sticky Notes script, Choco update command, PHP+phpMyAdmin modes, OrderedDictionary fix",
+  "changes": [
+    "Script 34: Simple Sticky Notes installer via Chocolatey (simple-sticky-notes)",
+    ".\\ run.ps1 update command: lists installed Choco packages, confirms, runs choco upgrade all",
+    "PHP + phpMyAdmin 3-mode support: php+phpmyadmin (default), php-only, phpmyadmin-only with $env:PHP_MODE",
+    "Combo shortcuts: git+desktop, node+pnpm, frontend, backend, web-dev, essentials, full-stack",
+    "VSCode combos: vscode+settings (vscode+s), vscode+menu+settings (vms)",
+    "Generic mode env var dispatcher in run.ps1 ($modeEnvVars map replaces hardcoded NPP_MODE)",
+    "Fixed OrderedDictionary ArgumentOutOfRangeException: int keys treated as positional index, now uses string keys",
+    "Updated help tables with Combo Shortcuts section in both Show-RootHelp and Show-KeywordTable"
+  ]
+}

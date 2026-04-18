@@ -1,0 +1,42 @@
+{
+  "scriptName": "Install GitHub Desktop",
+  "description": "Installs GitHub Desktop via Chocolatey. Optionally scans folders for Git repos and adds them to GitHub Desktop.",
+  "messages": {
+    "ghDesktopAlreadyInstalled": "GitHub Desktop is already installed.",
+    "ghDesktopInstallSuccess": "GitHub Desktop installed successfully.",
+    "ghDesktopUpgradeSuccess": "GitHub Desktop upgraded successfully.",
+    "ghDesktopNotFound": "GitHub Desktop not found, installing via Chocolatey...",
+    "ghDesktopUpgrading": "Upgrading GitHub Desktop to latest...",
+    "scriptDisabled": "GitHub Desktop installation is disabled in config.",
+    "savingResolved": "Saving resolved state...",
+    "notAdmin": "This script requires administrator privileges.",
+    "ghDesktopSetupComplete": "GitHub Desktop setup complete.",
+    "scanDisabled": "Folder scanning is disabled in config -- skipping repo discovery",
+    "scanStarting": "Scanning folders for Git repositories...",
+    "scanFolder": "Scanning: {path} (depth {depth})",
+    "scanFolderMissing": "Scan folder not found, skipping: {path}",
+    "scanFoundRepo": "Found Git repo: {path}",
+    "scanRepoAlreadyAdded": "Repo already in GitHub Desktop: {path}",
+    "scanRepoAdded": "Added repo to GitHub Desktop: {path}",
+    "scanSummary": "Scan complete -- {found} repos found, {added} newly added, {skipped} already tracked",
+    "scanNoRepos": "No Git repositories found in configured folders",
+    "scanWriteError": "Failed to write GitHub Desktop repo list: {error}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install/upgrade GitHub Desktop + scan folders for repos (default)",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1 install github-desktop",
+      ".\\run.ps1 install gh",
+      ".\\run.ps1 -I 8",
+      ".\\run.ps1 -I 8 -- -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

@@ -1,0 +1,375 @@
+<#
+.SYNOPSIS
+    Shared dev directory resolution and initialization.
+
+.DESCRIPTION
+    Provides functions to resolve the base dev directory using smart drive
+    selection. Priority: E:\dev > D:\dev > best non-system drive > prompt.
+    Each candidate drive must exist and have at least 10 GB free space.
+#>
+
+# -- Bootstrap shared helpers --------------------------------------------------
+$loggingPath = Join-Path $PSScriptRoot "logging.ps1"
+if ((Test-Path $loggingPath) -and -not (Get-Command Write-Log -ErrorAction SilentlyContinue)) {
+    . $loggingPath
+}
+
+if (-not (Get-Variable -Name SharedLogMessages -Scope Script -ErrorAction SilentlyContinue)) {
+    $sharedLogPath = Join-Path $PSScriptRoot "log-messages.json"
+    if (Test-Path $sharedLogPath) {
+        $script:SharedLogMessages = Get-Content $sharedLogPath -Raw | ConvertFrom-Json
+    }
+}
+
+# -- Constants -----------------------------------------------------------------
+$script:MinFreeSpaceGB = 10
+
+function Get-DevPathFile {
+    return Join-Path (Split-Path $PSScriptRoot -Parent) "dev-path.json"
+}
+
+function Get-SavedDevPath {
+    $devPathFile = Get-DevPathFile
+    $isFilePresent = Test-Path $devPathFile
+    if (-not $isFilePresent) { return $null }
+    try {
+        $data = Get-Content $devPathFile -Raw | ConvertFrom-Json
+        $hasPath = -not [string]::IsNullOrWhiteSpace($data.path)
+        if ($hasPath) { return $data.path }
+    } catch {}
+    return $null
+}
+
+function Set-SavedDevPath {
+    param([string]$Path)
+    $devPathFile = Get-DevPathFile
+    @{ path = $Path } | ConvertTo-Json -Depth 1 | Set-Content -Path $devPathFile -Encoding UTF8
+}
+
+function Remove-SavedDevPath {
+    $devPathFile = Get-DevPathFile
+    $isFilePresent = Test-Path $devPathFile
+    if ($isFilePresent) { Remove-Item $devPathFile -Force }
+}
+
+function Get-SafeDevDirFallback {
+    $systemDrive = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) { "C:" } else { $env:SystemDrive.TrimEnd('\') }
+    return "$systemDrive\dev-tool"
+}
+
+function Test-DriveQualified {
+    <#
+    .SYNOPSIS
+        Returns $true if the given drive letter exists and has at least
+        $script:MinFreeSpaceGB free space.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string]$DriveLetter
+    )
+
+    $slm = $script:SharedLogMessages
+    $drive = Get-PSDrive -Name $DriveLetter -ErrorAction SilentlyContinue
+    $hasDrive = $null -ne $drive
+    if (-not $hasDrive) {
+        Write-Log ($slm.messages.driveNotFound -replace '\{drive\}', "${DriveLetter}:") -Level "info"
+        return $false
+    }
+
+    # Get free space via WMI (more reliable than PSDrive.Free for fixed disks)
+    $freeGB = 0
+    try {
+        $vol = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='${DriveLetter}:'" -ErrorAction Stop
+        $hasVolume = $null -ne $vol -and $null -ne $vol.FreeSpace
+        if ($hasVolume) {
+            $freeGB = [math]::Round($vol.FreeSpace / 1GB, 1)
+        }
+    } catch {
+        # Fallback to PSDrive
+        $hasPsDriveFree = $null -ne $drive.Free
+        if ($hasPsDriveFree) {
+            $freeGB = [math]::Round($drive.Free / 1GB, 1)
+        }
+    }
+
+    # Drives with 0 GB are likely phantom drives (card readers, empty removable media)
+    $isPhantomDrive = $freeGB -eq 0
+    if ($isPhantomDrive) {
+        Write-Log "Drive ${DriveLetter}: reports 0 GB free (likely phantom/empty removable drive) -- skipping" -Level "info"
+        return $false
+    }
+
+    $hasEnoughSpace = $freeGB -ge $script:MinFreeSpaceGB
+    if (-not $hasEnoughSpace) {
+        Write-Log ($slm.messages.driveLowSpace -replace '\{drive\}', "${DriveLetter}:" -replace '\{free\}', $freeGB -replace '\{min\}', $script:MinFreeSpaceGB) -Level "warn"
+        return $false
+    }
+
+    Write-Log ($slm.messages.driveQualified -replace '\{drive\}', "${DriveLetter}:" -replace '\{free\}', $freeGB) -Level "info"
+    return $true
+}
+
+function Find-BestDevDrive {
+    <#
+    .SYNOPSIS
+        Selects the best drive for the dev directory using this priority:
+        1. E: drive (preferred)
+        2. D: drive (secondary)
+        3. Any other non-system fixed drive with the most free space
+        Returns the drive letter (e.g. "E") or $null if none qualifies.
+    #>
+
+    $slm = $script:SharedLogMessages
+    Write-Log $slm.messages.driveAutoDetecting -Level "info"
+
+    # Priority 1: E: drive
+    $isEQualified = Test-DriveQualified -DriveLetter "E"
+    if ($isEQualified) {
+        Write-Log ($slm.messages.drivePreferred -replace '\{drive\}', "E:") -Level "success"
+        return "E"
+    }
+
+    # Priority 2: D: drive
+    $isDQualified = Test-DriveQualified -DriveLetter "D"
+    if ($isDQualified) {
+        Write-Log ($slm.messages.drivePreferred -replace '\{drive\}', "D:") -Level "success"
+        return "D"
+    }
+
+    # Priority 3: Any other non-system fixed drive with most free space
+    Write-Log $slm.messages.driveScanningOthers -Level "info"
+    $systemDriveLetter = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) { "C" } else { $env:SystemDrive.TrimEnd('\').Substring(0, 1) }
+
+    $fixedDisks = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DriveType=3" -ErrorAction SilentlyContinue
+    $candidates = @()
+    foreach ($disk in $fixedDisks) {
+        $letter = $disk.DeviceID.Substring(0, 1)
+        $isSystemDrive = $letter -eq $systemDriveLetter
+        $isAlreadyChecked = $letter -eq "E" -or $letter -eq "D"
+        if ($isSystemDrive -or $isAlreadyChecked) { continue }
+
+        $freeGB = [math]::Round($disk.FreeSpace / 1GB, 1)
+        $hasEnoughSpace = $freeGB -ge $script:MinFreeSpaceGB
+        if ($hasEnoughSpace) {
+            $candidates += [PSCustomObject]@{ Letter = $letter; FreeGB = $freeGB }
+        }
+    }
+
+    $hasCandidates = $candidates.Count -gt 0
+    if ($hasCandidates) {
+        $best = $candidates | Sort-Object FreeGB -Descending | Select-Object -First 1
+        Write-Log ($slm.messages.driveAutoSelected -replace '\{drive\}', "$($best.Letter):" -replace '\{free\}', $best.FreeGB) -Level "success"
+        return $best.Letter
+    }
+
+    Write-Log $slm.messages.driveNoneQualified -Level "warn"
+    return $null
+}
+
+function Resolve-SmartDevDir {
+    <#
+    .SYNOPSIS
+        Smart dev directory resolution. Finds the best drive automatically,
+        falls back to prompting the user if no drive qualifies.
+        Returns a path like "E:\dev".
+    #>
+
+    $slm = $script:SharedLogMessages
+
+    $bestDrive = Find-BestDevDrive
+    $hasBestDrive = $null -ne $bestDrive
+    if ($hasBestDrive) {
+        return "${bestDrive}:\dev-tool"
+    }
+
+    # No qualified drive found -- prompt user
+    Write-Host ""
+    Write-Host "  No drive with $($script:MinFreeSpaceGB) GB free space found (checked E:, D:, others)." -ForegroundColor Yellow
+    Write-Host "  Available fixed drives:" -ForegroundColor Cyan
+
+    $fixedDisks = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DriveType=3" -ErrorAction SilentlyContinue
+    foreach ($disk in $fixedDisks) {
+        $freeGB = [math]::Round($disk.FreeSpace / 1GB, 1)
+        Write-Host "    $($disk.DeviceID) -- $freeGB GB free" -ForegroundColor White
+    }
+
+    Write-Host ""
+    $userInput = Read-Host -Prompt "Enter dev directory path (e.g. C:\dev-tool, F:\dev-tool)"
+    $hasUserInput = -not [string]::IsNullOrWhiteSpace($userInput)
+    if ($hasUserInput) {
+        Write-Log ($slm.messages.devDirUserProvided -replace '\{path\}', $userInput) -Level "info"
+        return $userInput
+    }
+
+    # Last resort fallback
+    $fallbackPath = Get-SafeDevDirFallback
+    Write-Log ($slm.messages.devDirFallback -replace '\{path\}', $fallbackPath) -Level "warn"
+    return $fallbackPath
+}
+
+function Resolve-UsableDevDir {
+    param(
+        [string]$PathValue
+    )
+
+    $slm = $script:SharedLogMessages
+    $isPathMissing = [string]::IsNullOrWhiteSpace($PathValue)
+    if ($isPathMissing) {
+        $fallbackPath = Get-SafeDevDirFallback
+        Write-Log ($slm.messages.devDirFallback -replace '\{path\}', $fallbackPath) -Level "warn"
+        return $fallbackPath
+    }
+
+    $expandedPath = [System.Environment]::ExpandEnvironmentVariables($PathValue.Trim())
+    Write-Log ($slm.messages.devDirExpanded -replace '\{path\}', $expandedPath) -Level "info"
+
+    try {
+        $fullPath = [System.IO.Path]::GetFullPath($expandedPath)
+    } catch {
+        Write-Log ($slm.messages.devDirInvalid -replace '\{path\}', $expandedPath) -Level "warn"
+        $fallbackPath = Get-SafeDevDirFallback
+        Write-Log ($slm.messages.devDirFallback -replace '\{path\}', $fallbackPath) -Level "warn"
+        return $fallbackPath
+    }
+
+    $isDriveQualifiedPath = $fullPath -match '^[A-Za-z]:\\'
+    if ($isDriveQualifiedPath) {
+        $driveName = $fullPath.Substring(0, 1)
+        $drive = Get-PSDrive -Name $driveName -ErrorAction SilentlyContinue
+        $hasDrive = $null -ne $drive
+        $isDriveMissing = -not $hasDrive
+        if ($isDriveMissing) {
+            Write-Log ($slm.messages.devDirDriveMissing -replace '\{path\}', $fullPath) -Level "warn"
+            $fallbackPath = Get-SafeDevDirFallback
+            Write-Log ($slm.messages.devDirFallback -replace '\{path\}', $fallbackPath) -Level "warn"
+            return $fallbackPath
+        }
+    }
+
+    return $fullPath
+}
+
+function Resolve-DevDir {
+    <#
+    .SYNOPSIS
+        Resolves the dev directory path from (in priority order):
+        1. $env:DEV_DIR (set by orchestrator)
+        2. Config override value
+        3. Smart drive detection (E: > D: > best drive > prompt)
+        4. Config default value (legacy fallback)
+
+        Accepts -DevDirConfig or -Config (alias).
+    #>
+    param(
+        [Parameter(Position = 0)]
+        [PSCustomObject]$DevDirConfig,
+
+        [PSCustomObject]$Config
+    )
+
+    $slm = $script:SharedLogMessages
+
+    # Support -Config alias
+    if ($Config -and -not $DevDirConfig) { $DevDirConfig = $Config }
+
+    # Check environment variable first (set by orchestrator)
+    $hasDevDirEnv = -not [string]::IsNullOrWhiteSpace($env:DEV_DIR)
+    if ($hasDevDirEnv) {
+        Write-Log ($slm.messages.devDirFromEnv -replace '\{path\}', $env:DEV_DIR) -Level "success"
+        return Resolve-UsableDevDir -PathValue $env:DEV_DIR
+    }
+
+    # Check saved dev path (set via .\run.ps1 path <dir>)
+    $savedPath = Get-SavedDevPath
+    $hasSavedPath = $null -ne $savedPath
+    if ($hasSavedPath) {
+        Write-Log ($slm.messages.devDirSavedPathLoaded -replace '\{path\}', $savedPath) -Level "success"
+        return Resolve-UsableDevDir -PathValue $savedPath
+    }
+
+    $hasNoConfig = -not $DevDirConfig
+    if ($hasNoConfig) {
+        # No config -- use smart drive detection
+        return Resolve-SmartDevDir
+    }
+
+    $overridePath = if ($DevDirConfig.override) { $DevDirConfig.override } else { "" }
+
+    # Config override takes precedence
+    $hasOverride = -not [string]::IsNullOrWhiteSpace($overridePath)
+    if ($hasOverride) {
+        Write-Log ($slm.messages.devDirOverride -replace '\{path\}', $overridePath) -Level "info"
+        return Resolve-UsableDevDir -PathValue $overridePath
+    }
+
+    # Smart drive detection (replaces hardcoded default)
+    $isSmartMode = $DevDirConfig.mode -eq "json-or-prompt" -or $DevDirConfig.mode -eq "smart"
+    if ($isSmartMode) {
+        return Resolve-SmartDevDir
+    }
+
+    # Legacy fallback: use config default
+    $defaultPath = if ($DevDirConfig.default) { $DevDirConfig.default } else { Get-SafeDevDirFallback }
+    Write-Log ($slm.messages.devDirDefault -replace '\{path\}', $defaultPath) -Level "info"
+    return Resolve-UsableDevDir -PathValue $defaultPath
+}
+
+function Initialize-DevDir {
+    <#
+    .SYNOPSIS
+        Creates the dev directory and standard subdirectories if they don't exist.
+        Accepts -DevDir or -Path (alias).
+    #>
+    param(
+        [Parameter(Position = 0)]
+        [string]$DevDir,
+
+        [string]$Path,
+
+        [string[]]$Subdirectories = @()
+    )
+
+    $slm = $script:SharedLogMessages
+
+    # Support -Path alias
+    if ($Path -and -not $DevDir) { $DevDir = $Path }
+
+    $DevDir = Resolve-UsableDevDir -PathValue $DevDir
+    Write-Log ($slm.messages.devDirInitializing -replace '\{path\}', $DevDir) -Level "info"
+
+    try {
+        $isDirMissing = -not (Test-Path $DevDir)
+        if ($isDirMissing) {
+            New-Item -Path $DevDir -ItemType Directory -Force -Confirm:$false | Out-Null
+            Write-Log ($slm.messages.devDirCreated -replace '\{path\}', $DevDir) -Level "success"
+        } else {
+            Write-Log ($slm.messages.devDirExists -replace '\{path\}', $DevDir) -Level "info"
+        }
+    } catch {
+        Write-Log ($slm.messages.devDirCreateFailed -replace '\{path\}', $DevDir -replace '\{error\}', $_) -Level "warn"
+        $fallbackPath = Get-SafeDevDirFallback
+        $isSameFallback = $fallbackPath -eq $DevDir
+        if ($isSameFallback) {
+            throw
+        }
+
+        Write-Log ($slm.messages.devDirFallback -replace '\{path\}', $fallbackPath) -Level "warn"
+        $isFallbackMissing = -not (Test-Path $fallbackPath)
+        if ($isFallbackMissing) {
+            New-Item -Path $fallbackPath -ItemType Directory -Force -Confirm:$false | Out-Null
+            Write-Log ($slm.messages.devDirCreated -replace '\{path\}', $fallbackPath) -Level "success"
+        }
+        $DevDir = $fallbackPath
+    }
+
+    foreach ($sub in $Subdirectories) {
+        $subPath = Join-Path $DevDir $sub
+        $isSubMissing = -not (Test-Path $subPath)
+        if ($isSubMissing) {
+            New-Item -Path $subPath -ItemType Directory -Force -Confirm:$false | Out-Null
+            Write-Log ($slm.messages.devDirSubCreated -replace '\{name\}', $sub) -Level "success"
+        }
+    }
+
+    return $DevDir
+}

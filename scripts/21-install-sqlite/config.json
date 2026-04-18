@@ -1,0 +1,25 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "sqlite3",
+    "versionFlag": "--version",
+    "name": "SQLite",
+    "desc": "File-based embedded SQL database + DB Browser for SQLite",
+    "type": "file-based",
+    "chocoPackage": "sqlite",
+    "browser": {
+      "enabled": true,
+      "name": "DB Browser for SQLite",
+      "chocoPackage": "sqlitebrowser"
+    }
+  }
+}

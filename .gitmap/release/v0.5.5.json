@@ -1,0 +1,13 @@
+{
+  "version": "0.5.5",
+  "tag": "v0.5.5",
+  "branch": "release/v0.5.5",
+  "date": "2026-04-07",
+  "summary": "Release pipeline script for versioned ZIP packaging",
+  "changes": [
+    "Added release.ps1 -- packages scripts/, run.ps1, bump-version.ps1, readme.md, LICENSE, and CHANGELOG.md into a versioned ZIP under .release/",
+    "Supports -DryRun (preview) and -Force (overwrite) flags",
+    "Reads version from .gitmap/release/latest.json",
+    "Added spec/release-pipeline/readme.md with full usage documentation"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "neo4j",
+    "versionFlag": "--version",
+    "name": "Neo4j",
+    "desc": "Graph database for connected data",
+    "type": "nosql-graph",
+    "chocoPackage": "neo4j-community"
+  }
+}

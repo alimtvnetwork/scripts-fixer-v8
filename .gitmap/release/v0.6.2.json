@@ -1,0 +1,15 @@
+{
+  "version": "0.6.2",
+  "tag": "v0.6.2",
+  "branch": "release/v0.6.2",
+  "date": "2026-04-07",
+  "summary": "GitMap folder-specific install via devDir integration",
+  "changes": [
+    "GitMap installer resolves install directory via Resolve-DevDir (smart drive detection)",
+    "Passes -InstallDir to the remote GitHub installer",
+    "run.ps1 dot-sources dev-dir.ps1 and passes devDir config",
+    "Detection checks $env:DEV_DIR\\GitMap\\gitmap.exe",
+    "Resolved state includes installDir field",
+    "Updated spec with devDir resolution priority and remote installer flags"
+  ]
+}

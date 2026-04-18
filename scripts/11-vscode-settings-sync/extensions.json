@@ -1,0 +1,36 @@
+{
+  "extensions": [
+    "abdelmuttalib.material-dark-pro",
+    "alefragnani.project-manager",
+    "arbaouimehdi.photon",
+    "christopherafbjur.vscode-theme-onedarker",
+    "cweijan.vscode-autohotkey-plus",
+    "d8aware.vscode-mermaid-extension",
+    "devsense.composer-php-vscode",
+    "devsense.intelli-php-vscode",
+    "devsense.phptools-vscode",
+    "devsense.profiler-php-vscode",
+    "golang.go",
+    "mechatroner.rainbow-csv",
+    "meezilla.json",
+    "ms-vscode.powershell",
+    "ms-vscode.vscode-typescript-next",
+    "redhat.vscode-yaml",
+    "sonarsource.sonarlint-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "xabikos.reactsnippets",
+    "zainchen.json"
+  ],
+  "disabled": [
+    "vscode.debug-auto-launch",
+    "vscode.emmet",
+    "infeng.vscode-react-typescript",
+    "ipedrazas.kubernetes-snippets",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+    "ms-vscode-remote.remote-wsl",
+    "ms-vscode.remote-explorer",
+    "yy0931.save-as-root"
+  ]
+}

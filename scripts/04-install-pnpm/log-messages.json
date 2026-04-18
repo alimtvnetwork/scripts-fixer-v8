@@ -1,0 +1,40 @@
+{
+  "scriptName": "Install pnpm",
+  "description": "Installs pnpm globally via npm and configures the global store.",
+  "messages": {
+    "pnpmAlreadyInstalled": "pnpm is already installed: {version}",
+    "pnpmInstallSuccess": "pnpm installed successfully: {version}",
+    "pnpmUpgradeSuccess": "pnpm upgraded to latest: {version}",
+    "configuringStore": "Configuring pnpm store directory: {path}",
+    "storeSet": "pnpm store directory set to: {path}",
+    "storeAlreadySet": "pnpm store directory already configured: {path}",
+    "addingToPath": "Adding pnpm global bin to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "pnpm installation is disabled in config.",
+    "pnpmUpgrading": "Upgrading pnpm to latest...",
+    "pnpmNotFound": "pnpm not found, installing via npm...",
+    "nodeRequired": "Node.js (npm) is required to install pnpm. Run script 06 first.",
+    "savingResolved": "Saving resolved state...",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "pnpmSetupComplete": "pnpm setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install pnpm and configure store (default)",
+      "install": "Install/upgrade pnpm only",
+      "configure": "Configure store path and PATH only",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 configure",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "scriptName": "Install .NET SDK",
+  "status": {
+    "ok":   "[  OK  ]",
+    "fail": "[ FAIL ]",
+    "info": "[ INFO ]",
+    "warn": "[ WARN ]",
+    "skip": "[ SKIP ]"
+  },
+  "messages": {
+    "scriptDisabled": "Script 39 is disabled in config.json -- skipping",
+    "notAdmin": "This script requires administrator privileges. Please run as admin.",
+    "unknownCommand": "Unknown command: {command}. Use: all | install | uninstall | --help",
+    "devDirFromParam": "Dev directory set from -Path parameter: {path}",
+    "dotnetAlreadyInstalled": ".NET SDK is already installed: {version}",
+    "dotnetNotFound": ".NET SDK not found -- installing via Chocolatey...",
+    "dotnetInstallSuccess": ".NET SDK installed successfully: {version}",
+    "dotnetUpgradeSuccess": ".NET SDK upgraded successfully: {version}",
+    "installingVersion": "Installing .NET SDK version: {version} (package: {package})",
+    "installLocationInfo": "Install target directory: {path}",
+    "availableVersions": "Available .NET versions: {versions}",
+    "invalidVersion": "Invalid version '{version}'. Available: {versions}",
+    "pathAlreadyContains": "User PATH already contains: {path}",
+    "addingToPath": "Adding to user PATH: {path}",
+    "savingResolved": "Saving resolved state...",
+    "dotnetSetupComplete": ".NET SDK setup complete!",
+    "uninstallingDotnet": "Uninstalling .NET SDK...",
+    "dotnetUninstallSuccess": ".NET SDK uninstalled successfully",
+    "dotnetUninstallFailed": ".NET SDK uninstall failed -- may need manual cleanup",
+    "dotnetUninstallComplete": ".NET SDK fully uninstalled and cleaned up",
+    "help": [
+      "Script 39 -- Install .NET SDK",
+      "",
+      "Usage:",
+      "  .\\run.ps1 -I 39                     Install .NET SDK (latest)",
+      "  .\\run.ps1 -I 39 -- install           Install .NET SDK (latest)",
+      "  .\\run.ps1 -I 39 -- install 8         Install .NET 8 LTS",
+      "  .\\run.ps1 -I 39 -- install 6         Install .NET 6 LTS",
+      "  .\\run.ps1 -I 39 -- install 9         Install .NET 9 STS",
+      "  .\\run.ps1 -I 39 -- uninstall         Full uninstall + cleanup",
+      "",
+      "Keywords: dotnet, .net, dotnet-sdk, csharp, c#"
+    ]
+  }
+}

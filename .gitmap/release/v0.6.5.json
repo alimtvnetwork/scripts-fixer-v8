@@ -1,0 +1,14 @@
+{
+  "version": "0.6.5",
+  "tag": "v0.6.5",
+  "branch": "release/v0.6.5",
+  "date": "2026-04-07",
+  "summary": "Fixed false fail status from warnings, improved phantom drive detection, added one-line summary output to all scripts",
+  "changes": [
+    "Fixed _LogErrors tracking both warnings and errors causing false 'fail' status",
+    "Split warning tracking into separate _LogWarnings collection",
+    "Phantom drives (0 GB free) now logged as info instead of warn",
+    "Added one-line copy-paste-friendly summary at end of every script run",
+    "Error details printed with >> prefix for quick scanning"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "notepadpp": {
+    "enabled": true,
+    "verifyCommand": "notepad++",
+    "chocoPackage": "notepadplusplus",
+    "name": "Notepad++",
+    "desc": "Lightweight source code editor with syntax highlighting",
+    "settingsDir": "",
+    "syncSettings": true,
+    "defaultMode": "install+settings",
+    "validModes": ["install+settings", "settings-only", "install-only"]
+  }
+}

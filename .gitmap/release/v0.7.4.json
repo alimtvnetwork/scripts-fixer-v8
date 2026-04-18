@@ -1,0 +1,15 @@
+{
+  "version": "0.7.4",
+  "tag": "v0.7.4",
+  "date": "2026-04-07",
+  "summary": "Windows Terminal 3-mode installer, golangci-lint + go vet, combo keywords in summary, GitMap URL update",
+  "changes": [
+    "Script 37: Windows Terminal installer via winget with 3-mode support (install+settings, settings-only, install-only)",
+    "Windows Terminal settings sync from settings/03 - windows-terminal/ to LocalState directory",
+    "Keywords: wt, windows-terminal, wt+settings, wt-settings, install-wt with mode mappings",
+    "Added golangci-lint install support to script 06 (Go) -- installs via go install with version pinning",
+    "Added go vet integration to script 06 -- runs go vet ./... after Go install for verification",
+    "Added combo keywords section to spec/script-registry-summary.md showing multi-script keywords",
+    "Updated GitMap install URL from alimtvnetwork/git-repo-navigator to alimtvnetwork/gitmap-v2 in config.json and spec"
+  ]
+}

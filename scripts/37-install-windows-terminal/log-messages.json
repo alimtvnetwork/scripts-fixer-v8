@@ -1,0 +1,46 @@
+{
+  "scriptName": "install-windows-terminal",
+  "description": "Installs Windows Terminal via Chocolatey and/or syncs bundled settings. Supports 3 modes.",
+  "messages": {
+    "notAdmin": "This script requires admin privileges. Please run as Administrator.",
+    "checking": "Checking for Windows Terminal...",
+    "alreadyInstalled": "Windows Terminal already installed: {version}",
+    "notFound": "Windows Terminal not found -- will install now",
+    "installing": "Installing Windows Terminal via Chocolatey...",
+    "installSuccess": "Windows Terminal installed successfully",
+    "installFailed": "Windows Terminal install failed: {error}",
+    "syncingSettings": "Syncing Windows Terminal settings from {source}...",
+    "settingsSynced": "Windows Terminal settings synced to {path}",
+    "settingsSkipped": "No Windows Terminal settings bundle found -- skipping sync",
+    "setupComplete": "Windows Terminal setup complete",
+    "disabled": "Windows Terminal install is disabled in config",
+    "exportStarting": "Exporting Windows Terminal settings from {source}...",
+    "exportNoSource": "Windows Terminal LocalState directory not found -- is Windows Terminal installed?",
+    "exportNoFiles": "No settings.json found in Windows Terminal LocalState -- nothing to export",
+    "exportComplete": "Windows Terminal settings exported -- {count} item(s) saved to {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "install+settings": "Install Windows Terminal and sync settings (default)",
+      "settings-only": "Sync settings only (no install)",
+      "install-only": "Install Windows Terminal only (no settings sync)",
+      "export": "Export Windows Terminal settings from machine to repo for backup",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1 install wt",
+      ".\\run.ps1 install wt+settings",
+      ".\\run.ps1 install wt-settings",
+      ".\\run.ps1 install install-wt",
+      ".\\run.ps1 -I 37 -- export",
+      ".\\run.ps1 -I 37",
+      ".\\run.ps1 -I 37 -- -Mode settings-only",
+      ".\\run.ps1 -I 37 -- -Mode install-only",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "scriptName": "Install Node.js",
+  "description": "Installs Node.js (LTS) via Chocolatey, configures npm, and installs Yarn, Bun, and npx.",
+  "messages": {
+    "nodeAlreadyInstalled": "Node.js is already installed: {version}",
+    "nodeInstallSuccess": "Node.js installed successfully: {version}",
+    "nodeUpgradeSuccess": "Node.js upgraded successfully: {version}",
+    "configuringNpmPrefix": "Configuring npm global prefix: {path}",
+    "npmPrefixSet": "npm global prefix set to: {path}",
+    "npmPrefixAlreadySet": "npm global prefix already configured: {path}",
+    "addingToPath": "Adding npm global bin to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "Node.js installation is disabled in config.",
+    "nodeNotFound": "Node.js not found, installing via Chocolatey...",
+    "savingResolved": "Saving resolved state...",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "nodeSetupComplete": "Node.js setup complete.",
+    "yarnInstalling": "Installing Yarn globally via npm...",
+    "yarnAlreadyInstalled": "Yarn is already installed: {version}",
+    "yarnInstallSuccess": "Yarn installed successfully: {version}",
+    "yarnInstallFailed": "Failed to install Yarn: {error}",
+    "bunInstalling": "Installing Bun via Chocolatey...",
+    "bunAlreadyInstalled": "Bun is already installed: {version}",
+    "bunInstallSuccess": "Bun installed successfully: {version}",
+    "npxVerifying": "Verifying npx is available...",
+    "npxAvailable": "npx is available: {version}",
+    "npxMissing": "npx not found -- it should ship with npm. Check your Node.js installation.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install Node.js, configure npm, install extras (default)",
+      "install": "Install/upgrade Node.js only",
+      "configure": "Configure npm prefix and PATH only",
+      "extras": "Install Yarn, Bun, and verify npx only",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 configure",
+      ".\\run.ps1 extras",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

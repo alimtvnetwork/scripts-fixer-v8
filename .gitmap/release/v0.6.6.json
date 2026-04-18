@@ -1,0 +1,12 @@
+{
+  "version": "0.6.6",
+  "tag": "v0.6.6",
+  "branch": "release/v0.6.6",
+  "date": "2026-04-07",
+  "summary": "Install target path now logged prominently before drive detection and download steps",
+  "changes": [
+    "Install target path logged immediately with success level and visual spacing for prominence",
+    "Changed 'GitMap not found' from warn to info level (expected during first install)",
+    "Updated log message to 'Install target: {path}' for clarity"
+  ]
+}

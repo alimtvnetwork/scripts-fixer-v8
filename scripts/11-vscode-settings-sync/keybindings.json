@@ -1,0 +1,14 @@
+[
+    {
+        "key": "ctrl+shift+s",
+        "command": "git.commitAllNoVerify"
+    },
+    {
+        "key": "ctrl+shift+g",
+        "command": "git.sync"
+    },
+    {
+        "key": "ctrl+shift+s",
+        "command": "git.commitAll"
+    }
+]

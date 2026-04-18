@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "cassandra",
+    "versionFlag": "-v",
+    "name": "Apache Cassandra",
+    "desc": "Wide-column distributed NoSQL database",
+    "type": "nosql-column",
+    "chocoPackage": "cassandra"
+  }
+}

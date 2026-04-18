@@ -1,0 +1,49 @@
+{
+  "enabled": true,
+  "requiresPython": true,
+  "installToUserSite": true,
+  "groups": {
+    "ml": {
+      "label": "Machine Learning",
+      "packages": ["numpy", "scipy", "scikit-learn", "torch", "tensorflow", "keras"]
+    },
+    "data": {
+      "label": "Data & Analytics",
+      "packages": ["pandas", "polars"]
+    },
+    "viz": {
+      "label": "Visualization",
+      "packages": ["matplotlib", "seaborn", "plotly"]
+    },
+    "web": {
+      "label": "Web Frameworks",
+      "packages": ["django", "flask", "fastapi", "uvicorn"]
+    },
+    "scraping": {
+      "label": "Scraping & HTTP",
+      "packages": ["requests", "beautifulsoup4"]
+    },
+    "cv": {
+      "label": "Computer Vision",
+      "packages": ["opencv-python"]
+    },
+    "db": {
+      "label": "Database",
+      "packages": ["sqlalchemy"]
+    },
+    "jupyter": {
+      "label": "Jupyter Notebook",
+      "packages": ["jupyterlab", "notebook", "ipykernel", "ipywidgets"]
+    }
+  },
+  "allPackages": [
+    "numpy", "pandas", "scipy", "polars",
+    "scikit-learn", "torch", "tensorflow", "keras",
+    "django", "flask", "fastapi", "uvicorn",
+    "matplotlib", "seaborn", "plotly",
+    "requests", "beautifulsoup4",
+    "opencv-python",
+    "sqlalchemy",
+    "jupyterlab", "notebook", "ipykernel", "ipywidgets"
+  ]
+}

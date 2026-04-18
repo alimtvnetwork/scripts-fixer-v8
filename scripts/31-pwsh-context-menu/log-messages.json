@@ -1,0 +1,57 @@
+{
+  "scriptName": "PowerShell Context Menu",
+  "description": "Adds 'Open PowerShell Here' (normal + admin) to the Windows right-click context menu.",
+  "messages": {
+    "scriptDisabled": "PowerShell context menu script is disabled in config.",
+    "notAdmin": "This script must be run as Administrator.",
+    "detecting": "Detecting latest PowerShell (pwsh) installation...",
+    "pwshFound": "Found PowerShell: {version} at {path}",
+    "pwshNotFound": "'{command}' not found on PATH -- searching known locations...",
+    "searchingPath": "Checking: {path}",
+    "foundAtPath": "Found pwsh at: {path}",
+    "pathNotFound": "Not found: {path}",
+    "usingLegacy": "Falling back to legacy Windows PowerShell: {path}",
+    "noExeFound": "No PowerShell executable found. Install pwsh first (script 17).",
+    "processingMode": "Processing mode: {mode} ({label})",
+    "modeBorderLine": "  +----------------------------------------------",
+    "modeLabel": "  |  Mode: {label}",
+    "regDir": "Creating context menu entry for FOLDERS...",
+    "regBg": "Creating context menu entry for FOLDER BACKGROUND...",
+    "settingRunas": "Setting 'HasLUAShield' for admin elevation prompt...",
+    "runasSet": "HasLUAShield set -- UAC prompt will appear",
+    "verify": "Verifying registry entries...",
+    "registerStep": "{step}",
+    "regPathDetail": "  Registry path : {path}",
+    "regLabelDetail": "  Label         : {label}",
+    "regIconDetail": "  Icon          : {icon}",
+    "regCommandDetail": "  Command       : {command}",
+    "settingRegistryDefault": "Setting (Default) = {label}",
+    "registryDefaultSet": "(Default) set",
+    "settingIcon": "Setting Icon = {icon}",
+    "iconSet": "Icon set",
+    "settingCommand": "Setting command = {command}",
+    "commandSet": "Command set",
+    "registryFailed": "FAILED: {error}",
+    "registryStack": "Stack: {stack}",
+    "verifyingEntry": "Verifying: {path}",
+    "verifyPass": "[pass] {label} -- {path}",
+    "verifyMiss": "[miss] {label} -- {path}",
+    "done": "All PowerShell context menu entries created successfully!",
+    "completedWithWarnings": "Completed with some warnings -- check output above.",
+    "setupComplete": "PowerShell context menu setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

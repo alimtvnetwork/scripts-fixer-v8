@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "mongod",
+    "versionFlag": "--version",
+    "name": "MongoDB",
+    "desc": "Document-oriented NoSQL database",
+    "type": "nosql-document",
+    "chocoPackage": "mongodb"
+  }
+}

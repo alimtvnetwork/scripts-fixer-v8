@@ -1,0 +1,12 @@
+{
+  "version": "0.5.2",
+  "tag": "v0.5.2",
+  "branch": "release/v0.5.2",
+  "date": "2026-04-06",
+  "summary": "Post-install symlink verification in databases/run.ps1",
+  "changes": [
+    "Added Test-PostInstallSymlink helper to databases/run.ps1 -- verifies junction exists after each database install",
+    "Added symlinkVerifyOk, symlinkVerifyMissing, symlinkVerifyNotJunction log messages to databases/log-messages.json",
+    "Invoke-DbScript now accepts $Key parameter and triggers symlink verification automatically"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "chocoPackageName": "mingw",
+  "alwaysUpgradeToLatest": true,
+  "installDir": {
+    "mode": "json-or-prompt",
+    "default": "C:\\mingw-w64",
+    "override": ""
+  },
+  "path": {
+    "updateUserPath": true
+  },
+  "verifyCommands": ["g++", "gcc", "mingw32-make"]
+}

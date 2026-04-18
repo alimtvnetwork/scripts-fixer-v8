@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "chocoPackageName": "nodejs-lts",
+  "alwaysUpgradeToLatest": true,
+  "devDirSubfolder": "nodejs",
+  "npm": {
+    "setGlobalPrefix": true,
+    "globalPrefix": "E:\\dev-tool\\nodejs"
+  },
+  "path": {
+    "updateUserPath": true,
+    "ensureNpmBinInPath": true
+  },
+  "extras": {
+    "yarn": {
+      "enabled": true,
+      "installMethod": "npm"
+    },
+    "bun": {
+      "enabled": true,
+      "chocoPackageName": "bun"
+    },
+    "npx": {
+      "verify": true
+    }
+  }
+}

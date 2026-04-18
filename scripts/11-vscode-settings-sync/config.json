@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "editions": {
+    "stable": {
+      "settingsPath": "%APPDATA%\\Code\\User",
+      "cliCommand": "code"
+    },
+    "insiders": {
+      "settingsPath": "%APPDATA%\\Code - Insiders\\User",
+      "cliCommand": "code-insiders"
+    }
+  },
+  "enabledEditions": ["stable", "insiders"],
+  "backupSuffix": ".backup"
+}

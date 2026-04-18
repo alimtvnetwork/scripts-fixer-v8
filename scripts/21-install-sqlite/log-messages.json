@@ -1,0 +1,41 @@
+{
+  "scriptName": "Install SQLite",
+  "description": "Install SQLite + DB Browser for SQLite -- File-based embedded SQL database",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "checking": "Checking for SQLite...",
+    "found": "SQLite found: {version}",
+    "notFound": "SQLite not found -- installing...",
+    "installing": "Installing SQLite...",
+    "installSuccess": "SQLite installed successfully: {version}",
+    "installFailed": "Failed to install SQLite: {error}",
+    "notInPath": "SQLite installed but not found in PATH -- restart your terminal.",
+    "disabled": "SQLite is disabled in config -- skipping.",
+    "checkingBrowser": "Checking {name}...",
+    "browserReady": "{name} is ready.",
+    "browserInstallFailed": "Failed to install {name}.",
+    "setupComplete": "SQLite + DB Browser setup complete.",
+    "installPathTitle": "Installation Path Options",
+    "installPathDevDir": "Install to dev directory: {path}\\sqlite",
+    "installPathCustom": "Enter custom path:",
+    "installPathSystem": "Install to default system location",
+    "installPathPrompt": "Choose install location [1] Dev dir  [2] Custom path  [3] System default:",
+    "installPathChosen": "Install location: {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      ".\\run.ps1": "Install SQLite + DB Browser for SQLite",
+      ".\\run.ps1 -Help": "Show this help",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

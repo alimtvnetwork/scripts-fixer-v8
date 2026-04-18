@@ -1,0 +1,17 @@
+{
+  "version": "0.6.0",
+  "tag": "v0.6.0",
+  "branch": "release/v0.6.0",
+  "date": "2026-04-07",
+  "summary": "GitMap installer, global -Defaults/-Y flags, and run.ps1 enhancements",
+  "changes": [
+    "Added script 35 (35-install-gitmap) -- installs GitMap CLI via remote installer from GitHub (alimtvnetwork/git-repo-navigator)",
+    "Added gitmap, git-map install keywords mapping to script ID 35",
+    "Added GitMap to all-dev config (script 12) and registry.json",
+    "Added global -Defaults (-D) and -Y flags to run.ps1 -- propagated to child scripts",
+    "-Defaults shows default values and prompts for confirmation; -Defaults -Y auto-confirms",
+    "-Defaults without -I defaults to script 12 (all-dev)",
+    "Added Defaults Mode section to run.ps1 help showing default directory, VS Code edition, and sync mode",
+    "Added spec/35-install-gitmap/readme.md with full usage documentation"
+  ]
+}

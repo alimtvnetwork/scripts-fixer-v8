@@ -1,0 +1,52 @@
+{
+  "scriptName": "Install llama.cpp",
+  "description": "Downloads llama.cpp binaries (CUDA, AVX2, KoboldCPP), extracts to dev directory, adds to PATH, and interactively downloads GGUF/GGML models from a 69-model catalog via aria2c.",
+  "messages": {
+    "processingExecutable": "[{slug}] {displayName}",
+    "downloading": "Downloading: {url}",
+    "downloadingTo": "Output: {path}",
+    "downloadSuccess": "Downloaded successfully: {fileName}",
+    "downloadFailed": "Download failed for {slug}: {error}",
+    "downloadSkipped": "File already exists, skipping: {path} ({size} MB)",
+    "extracting": "Extracting ZIP to: {path}",
+    "extractSuccess": "Extracted successfully: {path}",
+    "extractFailed": "Extraction failed for {slug}: {error}",
+    "pathAdding": "Adding to PATH: {path}",
+    "pathAlreadySet": "Already in PATH: {path}",
+    "verifyExeFound": "Verified executable: {exe}",
+    "verifyExeMissing": "Executable not found after extraction: {exe}",
+    "allExecutablesComplete": "All llama.cpp executables processed.",
+    "scriptDisabled": "llama.cpp installation is disabled in config.",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "savingResolved": "Saving resolved state...",
+    "llamaSetupComplete": "llama.cpp setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} removed successfully.",
+    "uninstallComplete": "Uninstall complete. Binaries and model tracking removed.",
+    "sessionRefreshed": "PATH refreshed for current session.",
+    "urlFreshnessCheck": "Validating download URLs are reachable...",
+    "hardwareDetecting": "Detecting hardware capabilities (CUDA GPU, AVX2 CPU)...",
+    "hwSkipped": "[{slug}] Skipped: requires {requires} (not detected on this system)",
+    "hwSkippedSummary": "{count} executable variant(s) skipped due to hardware incompatibility.",
+    "checksumVerifying": "Verifying SHA256 checksum for {fileName}...",
+    "checksumOk": "Checksum verified: {hash}",
+    "checksumMismatch": "SHA256 mismatch for {fileName}. Expected: {expected}, Actual: {actual}",
+    "checksumSkipped": "No SHA256 checksum configured for {fileName}, skipping verification."
+  },
+  "help": {
+    "commands": {
+      "all": "Download all executables + interactive model picker (default)",
+      "executables": "Download and extract executables only",
+      "models": "Interactive model picker -- choose which GGUF/GGML models to download",
+      "uninstall": "Remove all binaries, clean PATH, purge tracking"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 executables",
+      ".\\run.ps1 models",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

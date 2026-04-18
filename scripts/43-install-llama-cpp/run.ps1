@@ -1,0 +1,166 @@
+# --------------------------------------------------------------------------
+#  Script 43 -- Install llama.cpp
+#  Downloads llama.cpp binaries (CUDA/AVX2/KoboldCPP), extracts, adds to
+#  PATH, and interactively downloads GGUF/GGML models via aria2c.
+# --------------------------------------------------------------------------
+param(
+    [Parameter(Position = 0)]
+    [string]$Command = "all",
+
+    [Parameter(Position = 1)]
+    [string]$Path,
+
+    [switch]$Help
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$sharedDir = Join-Path (Split-Path -Parent $scriptDir) "shared"
+
+# -- Dot-source shared helpers ------------------------------------------------
+. (Join-Path $sharedDir "logging.ps1")
+. (Join-Path $sharedDir "resolved.ps1")
+. (Join-Path $sharedDir "git-pull.ps1")
+. (Join-Path $sharedDir "help.ps1")
+. (Join-Path $sharedDir "path-utils.ps1")
+. (Join-Path $sharedDir "dev-dir.ps1")
+. (Join-Path $sharedDir "installed.ps1")
+. (Join-Path $sharedDir "download-retry.ps1")
+. (Join-Path $sharedDir "disk-space.ps1")
+. (Join-Path $sharedDir "url-freshness.ps1")
+. (Join-Path $sharedDir "aria2c-download.ps1")
+
+# -- Dot-source script helpers ------------------------------------------------
+. (Join-Path $scriptDir "helpers\llama-cpp.ps1")
+. (Join-Path $scriptDir "helpers\model-picker.ps1")
+
+# -- Load config & log messages -----------------------------------------------
+$config       = Import-JsonConfig (Join-Path $scriptDir "config.json")
+$logMessages  = Import-JsonConfig (Join-Path $scriptDir "log-messages.json")
+$catalogPath  = Join-Path $scriptDir "models-catalog.json"
+
+# -- Help ---------------------------------------------------------------------
+if ($Help -or $Command -eq "--help") {
+    Show-ScriptHelp -LogMessages $logMessages
+    return
+}
+
+# -- Banner --------------------------------------------------------------------
+Write-Banner -Title $logMessages.scriptName
+
+# -- Initialize logging --------------------------------------------------------
+Initialize-Logging -ScriptName $logMessages.scriptName
+
+try {
+
+# -- Git pull ------------------------------------------------------------------
+Invoke-GitPull
+
+# -- Disabled check ------------------------------------------------------------
+$isDisabled = -not $config.enabled
+if ($isDisabled) {
+    Write-Log $logMessages.messages.scriptDisabled -Level "warn"
+    return
+}
+
+# -- Assert admin --------------------------------------------------------------
+$hasAdminRights = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+$isNotAdmin = -not $hasAdminRights
+if ($isNotAdmin) {
+    Write-Log $logMessages.messages.notAdmin -Level "error"
+    return
+}
+
+# -- Resolve dev directory -----------------------------------------------------
+$hasPathParam = -not [string]::IsNullOrWhiteSpace($Path)
+if ($hasPathParam) {
+    $devDir = $Path
+    Write-Log "Using user-specified dev directory: $devDir" -Level "info"
+} elseif ($env:DEV_DIR) {
+    $devDir = $env:DEV_DIR
+} else {
+    $devDir = Resolve-DevDir
+}
+
+# -- Resolve base directory for llama-cpp --------------------------------------
+$baseDir = Join-Path $devDir $config.devDirSubfolder
+$isDirMissing = -not (Test-Path $baseDir)
+if ($isDirMissing) {
+    New-Item -Path $baseDir -ItemType Directory -Force | Out-Null
+}
+Write-Log "llama.cpp base directory: $baseDir" -Level "info"
+
+# -- Execute subcommand --------------------------------------------------------
+switch ($Command.ToLower()) {
+    "all" {
+        # Pre-check: validate pinned download URLs still resolve
+        Write-Log $logMessages.messages.urlFreshnessCheck -Level "info"
+        $isUrlOk = Test-UrlFreshness -Items $config.executables -LabelField "displayName"
+        if (-not $isUrlOk) { return }
+
+        # Pre-check disk space for executables
+        $exeBytes = Get-TotalDownloadSize -Items $config.executables -SizeBytesField "expectedSizeBytes"
+        $isExeDiskOk = Test-DiskSpace -TargetPath $baseDir -RequiredBytes $exeBytes -Label "llama.cpp executables"
+        if (-not $isExeDiskOk) { return }
+
+        Install-LlamaCppExecutables -Config $config -LogMessages $logMessages -BaseDir $baseDir
+
+        # Interactive model installer
+        Invoke-ModelInstaller -CatalogPath $catalogPath -DevDir $devDir `
+            -DefaultModelsSubfolder $config.modelsConfig.devDirSubfolder `
+            -Aria2Config $config.aria2c -LogMessages $logMessages
+    }
+    "executables" {
+        Write-Log $logMessages.messages.urlFreshnessCheck -Level "info"
+        $isUrlOk = Test-UrlFreshness -Items $config.executables -LabelField "displayName"
+        if (-not $isUrlOk) { return }
+
+        $exeBytes = Get-TotalDownloadSize -Items $config.executables -SizeBytesField "expectedSizeBytes"
+        $isExeDiskOk = Test-DiskSpace -TargetPath $baseDir -RequiredBytes $exeBytes -Label "llama.cpp executables"
+        if (-not $isExeDiskOk) { return }
+        Install-LlamaCppExecutables -Config $config -LogMessages $logMessages -BaseDir $baseDir
+    }
+    "models" {
+        Invoke-ModelInstaller -CatalogPath $catalogPath -DevDir $devDir `
+            -DefaultModelsSubfolder $config.modelsConfig.devDirSubfolder `
+            -Aria2Config $config.aria2c -LogMessages $logMessages
+    }
+    "uninstall" {
+        Uninstall-LlamaCpp -Config $config -LogMessages $logMessages -BaseDir $baseDir
+        return
+    }
+    default {
+        Write-Log ($logMessages.messages.unknownCommand -replace '\{command\}', $Command) -Level "error"
+        return
+    }
+}
+
+# -- Save resolved state -------------------------------------------------------
+Write-Log $logMessages.messages.savingResolved -Level "info"
+
+$installedSlugs = @()
+foreach ($item in $config.executables) {
+    $targetFolder = Join-Path $baseDir $item.targetFolderName
+    $isPresent = Test-Path $targetFolder
+    if ($isPresent) { $installedSlugs += $item.slug }
+}
+
+Save-ResolvedData -ScriptFolder "43-install-llama-cpp" -Data @{
+    baseDir        = $baseDir
+    installedSlugs = $installedSlugs
+    timestamp      = (Get-Date -Format "o")
+}
+
+Write-Log $logMessages.messages.llamaSetupComplete -Level "success"
+
+# -- Save log ------------------------------------------------------------------
+
+} catch {
+    Write-Log "Unhandled error: $_" -Level "error"
+    Write-Log "Stack: $($_.ScriptStackTrace)" -Level "error"
+} finally {
+    # -- Save log (always runs, even on crash) --
+    $hasAnyErrors = $script:_LogErrors.Count -gt 0
+    Save-LogFile -Status $(if ($hasAnyErrors) { "fail" } else { "ok" })
+}

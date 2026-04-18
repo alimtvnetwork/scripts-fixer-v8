@@ -1,0 +1,15 @@
+{
+  "version": "0.7.2",
+  "tag": "v0.7.2",
+  "date": "2026-04-07",
+  "summary": "OBS Studio 3-mode installer script with settings sync",
+  "changes": [
+    "Script 36: OBS Studio installer via Chocolatey (obs-studio) with 3-mode support",
+    "OBS modes: install+settings (default), settings-only, install-only via $env:OBS_MODE",
+    "Settings sync extracts zip from settings/02 - obs-settings/ to %APPDATA%\\obs-studio\\",
+    "Keywords: obs, obs-studio, obs+settings, obs-settings, install-obs",
+    "Mode env var dispatcher updated: $modeEnvVars map now includes 36 = OBS_MODE",
+    "Registry updated: ID 36 = 36-install-obs",
+    "Spec added: spec/36-install-obs/readme.md"
+  ]
+}

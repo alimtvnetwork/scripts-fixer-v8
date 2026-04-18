@@ -1,0 +1,16 @@
+{
+  "version": "0.5.3",
+  "tag": "v0.5.3",
+  "branch": "release/v0.5.3",
+  "date": "2026-04-06",
+  "summary": "DBeaver Community installer, combo group presets, and database menu integration",
+  "changes": [
+    "Added Script 32 (32-install-dbeaver) -- installs DBeaver Community Edition via Chocolatey",
+    "Added spec/32-install-dbeaver/readme.md",
+    "Added dbeaver, db-viewer, dbviewer install keywords (ID 32)",
+    "Added DBeaver to databases/config.json as type 'tool' for interactive database menu",
+    "Added all-dev combo groups: o (All Dev+MySQL), p (All Dev+PostgreSQL), r (All Dev+PostgreSQL+Redis), s (SQLite+DBeaver), t (All DBs+DBeaver)",
+    "Added database menu groups: f (Popular+DBeaver), g (All+DBeaver)",
+    "Updated registry.json, orchestrator config sequence, and Everything group to include script 32"
+  ]
+}

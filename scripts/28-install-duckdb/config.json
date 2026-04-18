@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "duckdb",
+    "versionFlag": "--version",
+    "name": "DuckDB",
+    "desc": "Analytical file-based columnar database",
+    "type": "file-based",
+    "chocoPackage": "duckdb"
+  }
+}

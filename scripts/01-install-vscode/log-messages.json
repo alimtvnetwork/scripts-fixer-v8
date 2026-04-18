@@ -1,0 +1,39 @@
+{
+  "scriptName": "Install VS Code",
+  "description": "Installs Visual Studio Code via Chocolatey. Supports Stable and Insiders editions.",
+  "messages": {
+    "scriptDisabled": "VS Code installation is disabled in config.",
+    "notAdmin": "This script requires administrator privileges.",
+    "savingResolved": "Saving resolved state...",
+    "editionPrompt": "Which edition(s) would you like to install?",
+    "editionOptionStable": "  1. VS Code (Stable)",
+    "editionOptionInsiders": "  2. VS Code (Insiders)",
+    "editionOptionBoth": "  3. Both",
+    "editionPromptInput": "Enter choice (1/2/3, default=1): ",
+    "installingEdition": "Installing {label}...",
+    "editionAlreadyInstalled": "{label} is already installed.",
+    "editionInstallSuccess": "{label} installed successfully.",
+    "editionUpgradeSuccess": "{label} upgraded successfully.",
+    "editionNotFound": "{label} not found, installing via Chocolatey...",
+    "vscodeSetupComplete": "VS Code setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install VS Code (default, with edition prompt)",
+      "stable": "Install only VS Code Stable",
+      "insiders": "Install only VS Code Insiders",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 stable",
+      ".\\run.ps1 insiders",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

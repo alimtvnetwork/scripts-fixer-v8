@@ -1,0 +1,40 @@
+{
+  "enabled": true,
+  "devDirSubfolder": "ollama",
+  "downloadUrl": "https://ollama.com/download/OllamaSetup.exe",
+  "installerFileName": "OllamaSetup.exe",
+  "verifyCommand": "ollama",
+  "verifyArgs": "--version",
+  "path": {
+    "updateUserPath": true,
+    "defaultBinDir": "C:\\Users\\{user}\\AppData\\Local\\Programs\\Ollama"
+  },
+  "models": {
+    "promptForDirectory": true,
+    "devDirSubfolder": "ollama-models",
+    "envVarName": "OLLAMA_MODELS"
+  },
+  "defaultModels": [
+    {
+      "slug": "llama3.2",
+      "displayName": "Llama 3.2 (3B)",
+      "pullCommand": "llama3.2",
+      "sizeHint": "~2 GB",
+      "purpose": "general"
+    },
+    {
+      "slug": "qwen2.5-coder",
+      "displayName": "Qwen 2.5 Coder (7B)",
+      "pullCommand": "qwen2.5-coder",
+      "sizeHint": "~4.7 GB",
+      "purpose": "coding"
+    },
+    {
+      "slug": "deepseek-r1:8b",
+      "displayName": "DeepSeek R1 (8B)",
+      "pullCommand": "deepseek-r1:8b",
+      "sizeHint": "~4.9 GB",
+      "purpose": "reasoning"
+    }
+  ]
+}

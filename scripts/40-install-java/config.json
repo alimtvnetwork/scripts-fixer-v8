@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "chocoPackages": {
+    "latest": "openjdk",
+    "17": "openjdk17",
+    "21": "openjdk21"
+  },
+  "defaultVersion": "latest",
+  "availableVersions": ["latest", "17", "21"],
+  "alwaysUpgradeToLatest": false,
+  "devDirSubfolder": "java",
+  "env": {
+    "setJavaHome": true
+  },
+  "path": {
+    "updateUserPath": true
+  }
+}

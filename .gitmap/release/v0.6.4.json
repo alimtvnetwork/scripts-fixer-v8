@@ -1,0 +1,12 @@
+{
+  "version": "0.6.4",
+  "tag": "v0.6.4",
+  "branch": "release/v0.6.4",
+  "date": "2026-04-07",
+  "summary": "Updated root-dispatcher spec with -List flag documentation",
+  "changes": [
+    "Added -List flag to parameters table in spec/root-dispatcher/readme.md",
+    "Updated execution flow to include -List check before -Help and -Clean",
+    "Added -List usage example to spec"
+  ]
+}

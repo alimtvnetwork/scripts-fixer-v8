@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "installMethod": "official-installer",
+  "chocoPackageName": "python3",
+  "alwaysUpgradeToLatest": true,
+  "devDirSubfolder": "python",
+  "installer": {
+    "version": "3.13.5",
+    "downloadUrl": "https://www.python.org/ftp/python/3.13.5/python-3.13.5-amd64.exe",
+    "fileName": "python-3.13.5-amd64.exe",
+    "installDirSubfolder": "Python313",
+    "allUsers": true,
+    "includePip": true
+  },
+  "pip": {
+    "setUserSite": true
+  },
+  "path": {
+    "updateUserPath": true,
+    "ensurePipInPath": true
+  }
+}

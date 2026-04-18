@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "psql",
+    "versionFlag": "--version",
+    "name": "PostgreSQL",
+    "desc": "Advanced open-source relational database",
+    "type": "sql",
+    "chocoPackage": "postgresql"
+  }
+}

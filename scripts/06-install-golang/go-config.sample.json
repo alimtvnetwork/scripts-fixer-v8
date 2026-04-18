@@ -1,0 +1,44 @@
+{
+  "go": {
+    "enabled": true,
+    "chocoPackageName": "golang",
+    "alwaysUpgradeToLatest": true,
+    "promptIfMissing": true,
+    "gopath": {
+      "mode": "json-or-prompt",
+      "default": "d:\\go-path",
+      "override": ""
+    },
+    "path": {
+      "updateUserPath": true,
+      "updateMachinePath": false,
+      "ensureGoBinInPath": true
+    },
+    "goEnv": {
+      "applyMode": "json-or-prompt",
+      "relativeToGopath": true,
+      "settings": {
+        "GOMODCACHE": {
+          "enabled": true,
+          "relativePath": "pkg\\mod",
+          "promptOnFirstRun": false
+        },
+        "GOCACHE": {
+          "enabled": true,
+          "relativePath": "cache\\build",
+          "promptOnFirstRun": false
+        },
+        "GOPROXY": {
+          "enabled": true,
+          "value": "https://proxy.golang.org,direct",
+          "promptOnFirstRun": false
+        },
+        "GOPRIVATE": {
+          "enabled": true,
+          "value": "github.com/your-org/*,git.corp.example.com/*",
+          "promptOnFirstRun": true
+        }
+      }
+    }
+  }
+}

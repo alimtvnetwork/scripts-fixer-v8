@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "tweaks": {
+    "url": "https://christitus.com/win",
+    "confirmBeforeRun": true
+  }
+}

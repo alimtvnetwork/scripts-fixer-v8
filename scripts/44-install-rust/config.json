@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "installMethod": "rustup",
+  "rustupUrl": "https://win.rustup.rs/x86_64",
+  "defaultToolchain": "stable",
+  "alwaysUpgradeToLatest": true,
+  "components": {
+    "clippy": true,
+    "rustfmt": true,
+    "rust-analyzer": true
+  },
+  "targets": {
+    "addWasm": false,
+    "wasmTarget": "wasm32-unknown-unknown"
+  },
+  "cargoPackages": {
+    "enabled": false,
+    "packages": ["cargo-watch", "cargo-edit"]
+  },
+  "path": {
+    "updateUserPath": true,
+    "cargoHome": "",
+    "rustupHome": ""
+  }
+}

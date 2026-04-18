@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "editions": {
+    "stable": {
+      "enabled": true,
+      "chocoPackageName": "vscode",
+      "label": "VS Code (Stable)"
+    },
+    "insiders": {
+      "enabled": false,
+      "chocoPackageName": "vscode-insiders",
+      "label": "VS Code (Insiders)"
+    }
+  },
+  "promptEdition": true
+}

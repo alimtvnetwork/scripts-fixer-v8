@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "powershell": {
+    "enabled": true,
+    "installCommand": "winget",
+    "wingetId": "Microsoft.PowerShell",
+    "fallbackChocoPackage": "powershell-core",
+    "verifyCommand": "pwsh",
+    "versionFlag": "--version"
+  }
+}

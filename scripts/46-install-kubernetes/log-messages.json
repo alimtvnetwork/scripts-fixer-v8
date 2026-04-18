@@ -1,0 +1,50 @@
+{
+  "scriptName": "Install Kubernetes Tools (kubectl, minikube, Helm)",
+  "description": "Installs kubectl, minikube, and Helm via Chocolatey for local Kubernetes development.",
+  "messages": {
+    "kubectlAlreadyInstalled": "kubectl is already installed: {version}",
+    "kubectlInstallSuccess": "kubectl installed successfully: {version}",
+    "kubectlUpgradeSuccess": "kubectl upgraded successfully: {version}",
+    "kubectlNotFound": "kubectl not found, installing via Chocolatey...",
+    "minikubeAlreadyInstalled": "minikube is already installed: {version}",
+    "minikubeInstallSuccess": "minikube installed successfully: {version}",
+    "minikubeUpgradeSuccess": "minikube upgraded successfully: {version}",
+    "minikubeNotFound": "minikube not found, installing via Chocolatey...",
+    "helmAlreadyInstalled": "Helm is already installed: {version}",
+    "helmInstallSuccess": "Helm installed successfully: {version}",
+    "helmUpgradeSuccess": "Helm upgraded successfully: {version}",
+    "helmNotFound": "Helm not found, installing via Chocolatey...",
+    "lensAlreadyInstalled": "Lens is already installed.",
+    "lensNotFound": "Lens not found, installing via Chocolatey...",
+    "lensInstallSuccess": "Lens installed successfully.",
+    "addingToPath": "Adding to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "Kubernetes tools installation is disabled in config.",
+    "savingResolved": "Saving resolved state...",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "kubeSetupComplete": "Kubernetes tools setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Kubernetes tools removed, tracking purged."
+  },
+  "versionDetect": [
+    { "command": "kubectl",  "flag": "version --client --short", "label": "kubectl" },
+    { "command": "minikube", "flag": "version --short",          "label": "minikube" },
+    { "command": "helm",     "flag": "version --short",          "label": "helm" }
+  ],
+  "help": {
+    "commands": {
+      "all": "Install kubectl + minikube + Helm (default)",
+      "install": "Install/upgrade all enabled tools",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

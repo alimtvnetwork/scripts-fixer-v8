@@ -1,0 +1,46 @@
+{
+  "scriptName": "Install Python",
+  "description": "Installs Python from the official python.org installer and configures pip user site.",
+  "messages": {
+    "pythonAlreadyInstalled": "Python is already installed: {version}",
+    "pythonInstallSuccess": "Python installed successfully: {version}",
+    "pythonUpgradeSuccess": "Python upgraded successfully: {version}",
+    "configuringPipSite": "Configuring pip user site: {path}",
+    "pipSiteSet": "pip user site configured: {path}",
+    "pipSiteAlreadySet": "pip user site already configured: {path}",
+    "addingToPath": "Adding Python scripts to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "Python installation is disabled in config.",
+    "pythonNotFound": "Python not found, installing from the official python.org installer...",
+    "savingResolved": "Saving resolved state...",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "devDirFromParam": "Using user-specified dev directory: {path}",
+    "pythonSetupComplete": "Python setup complete.",
+    "uninstallingPython": "Removing Python install and environment settings...",
+    "pythonUninstallSuccess": "Python uninstalled successfully.",
+    "pythonUninstallFailed": "Python uninstall failed -- package may need manual removal.",
+    "pythonUninstallComplete": "Python uninstall complete. Package removed, env vars cleaned, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install Python and configure pip (default)",
+      "install": "Install/upgrade Python only",
+      "configure": "Configure pip user site and PATH only",
+      "uninstall": "Uninstall Python, remove env vars, clean dev dir, purge tracking"
+    },
+    "parameters": {
+      "-Path": "Custom dev directory path (overrides smart detection)"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 configure",
+      ".\\run.ps1 uninstall",
+      ".\\run.ps1 all F:\\dev-tool",
+      ".\\run.ps1 install D:\\projects",
+      ".\\run.ps1 -Path E:\\dev-tool",
+      ".\\run.ps1 -Help"
+    ]
+  }
+}

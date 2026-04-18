@@ -1,0 +1,63 @@
+{
+  "scriptName": "Install All Dev Tools",
+  "description": "Orchestrator: interactive menu to pick tools, or install everything at once.",
+  "messages": {
+    "resolvingDevDir": "Resolving dev directory...",
+    "devDirResolved": "Dev directory: {path}",
+    "runningScript": "--- Running script {id}: {name} ---",
+    "scriptSkipped": "Skipping script {id}: {name} (user request)",
+    "scriptDisabled": "Skipping script {id}: {name} (disabled in config)",
+    "scriptSuccess": "Script {id} completed successfully.",
+    "scriptFailed": "Script {id} failed: {error}",
+    "allComplete": "All dev tools setup complete!",
+    "summaryHeader": "--- Summary ---",
+    "summaryItem": "  [{status}] {id} - {name}",
+    "notAdmin": "This script requires administrator privileges.",
+    "menuTitle": "Install All Dev Tools -- Interactive Menu",
+    "menuPrompt": "Numbers (1,2,5), group letter (a-f), A=all, N=none, Q=quit, Enter=run: ",
+    "menuGroupsLabel": "Quick groups:",
+    "menuLoopBack": "Returning to menu... (select more or press Q to exit)",
+    "menuNoneSelected": "No scripts selected. Exiting.",
+    "menuRunning": "Running {count} selected script(s)...",
+    "dryRunBanner": "--- DRY RUN -- no changes will be made ---",
+    "dryRunItem": "  [WOULD RUN] {id} - {name}: {desc}",
+    "dryRunSkipped": "  [SKIP]      {id} - {name} (disabled in config)",
+    "dryRunComplete": "Dry run complete. {count} script(s) would be executed.",
+    "uninstallMenuTitle": "Select tools to UNINSTALL (check items then press Enter):",
+    "uninstallConfirmPrompt": "About to uninstall {count} tool(s):",
+    "uninstallCancelled": "Uninstall cancelled.",
+    "uninstallStarting": "Uninstalling {count} tool(s) in reverse order...",
+    "uninstallComplete": "Batch uninstall complete!",
+    "uninstallRunning": "--- Uninstalling script {id}: {name} ---",
+    "uninstallScriptSuccess": "Script {id} uninstalled successfully.",
+    "uninstallScriptFailed": "Script {id} uninstall failed: {error}",
+    "uninstallSkipChoco": "Skipping script {id}: {name} (Chocolatey cannot be uninstalled -- it would break the uninstall chain)",
+    "uninstallDryRunBanner": "--- UNINSTALL DRY RUN -- no changes will be made ---"
+  },
+  "help": {
+    "commands": {
+      "(default)": "Interactive menu -- pick what to install",
+      "-All": "Run all enabled scripts without prompting",
+      "-DryRun": "Show what would be installed without making changes",
+      "-Skip 06,08": "Skip specific scripts by number",
+      "-Only 03,05": "Run only specific scripts",
+      "-Uninstall": "Batch uninstall tools (interactive picker or with -All/-Only)",
+      "-Uninstall -All": "Uninstall ALL tools (with confirmation prompt)",
+      "-Uninstall -Only 03,05": "Uninstall specific tools by number",
+      "-Uninstall -DryRun": "Show what would be uninstalled without making changes"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -All",
+      ".\\run.ps1 -DryRun",
+      ".\\run.ps1 -DryRun -Only 03,05",
+      ".\\run.ps1 -Skip 06,08",
+      ".\\run.ps1 -Only 03,05",
+      ".\\run.ps1 -Uninstall",
+      ".\\run.ps1 -Uninstall -All",
+      ".\\run.ps1 -Uninstall -Only 03,05,07",
+      ".\\run.ps1 -Uninstall -DryRun",
+      ".\\run.ps1 -Help"
+    ]
+  }
+}

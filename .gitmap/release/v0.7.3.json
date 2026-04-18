@@ -1,0 +1,14 @@
+{
+  "version": "0.7.3",
+  "tag": "v0.7.3",
+  "date": "2026-04-07",
+  "summary": "OBS settings sync rework (temp extract, scenes + profiles), keyword modes audit check",
+  "changes": [
+    "OBS settings sync reworked: extract zip to %TEMP%, copy .json scene collections to basic\\scenes\\, profile folders to basic\\profiles\\",
+    "Settings source changed from script-local folder to settings/02 - obs-settings/ (shared settings directory)",
+    "Audit Check 10: keyword modes vs config validModes -- verifies every mode in install-keywords.json maps to a valid mode in the target script config.json",
+    "Added validModes arrays to config.json for scripts 16 (PHP), 33 (NPP), 36 (OBS)",
+    "Updated spec/36-install-obs/readme.md with detailed sync process and zip contents example",
+    "Updated settings/02 - obs-settings/readme.txt with proper documentation"
+  ]
+}

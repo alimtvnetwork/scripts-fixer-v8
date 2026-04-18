@@ -1,0 +1,14 @@
+{
+  "version": "0.5.4",
+  "tag": "v0.5.4",
+  "branch": "release/v0.5.4",
+  "date": "2026-04-06",
+  "summary": "Audit --DryRun flag and Invoke-WithTimeout shared helper",
+  "changes": [
+    "Added --DryRun flag to audit symlink check (Test-VerifySymlinks) -- previews repairs without modifying filesystem",
+    "Added Invoke-WithTimeout shared helper (scripts/shared/invoke-with-timeout.ps1) -- runs script blocks in background jobs with configurable timeout and detailed logging",
+    "Added 6 timeout* log message keys to scripts/shared/log-messages.json",
+    "Updated spec/audit/readme.md with --DryRun usage and examples",
+    "Updated spec/shared/readme.md with invoke-with-timeout.ps1 documentation"
+  ]
+}

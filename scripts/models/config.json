@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "backends": {
+    "llama-cpp": {
+      "label": "llama.cpp (GGUF, hardware-aware picker)",
+      "scriptFolder": "43-install-llama-cpp",
+      "catalogFile": "models-catalog.json",
+      "idField": "id",
+      "displayField": "displayName"
+    },
+    "ollama": {
+      "label": "Ollama (managed pull / push, daemon-based)",
+      "scriptFolder": "42-install-ollama",
+      "catalogFile": "config.json",
+      "catalogPath": "defaultModels",
+      "idField": "slug",
+      "displayField": "displayName"
+    }
+  }
+}

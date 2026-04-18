@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "chocoPackages": {
+    "latest": "dotnet-sdk",
+    "6": "dotnet-6.0-sdk",
+    "8": "dotnet-8.0-sdk",
+    "9": "dotnet-9.0-sdk"
+  },
+  "defaultVersion": "latest",
+  "availableVersions": ["latest", "6", "8", "9"],
+  "alwaysUpgradeToLatest": false,
+  "devDirSubfolder": "dotnet",
+  "path": {
+    "updateUserPath": true
+  }
+}

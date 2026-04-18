@@ -1,0 +1,14 @@
+{
+  "version": "0.6.8",
+  "tag": "v0.6.8",
+  "date": "2026-04-07",
+  "summary": "Notepad++ 3-variant installation modes with bundled settings zip",
+  "changes": [
+    "Three NPP install modes: NPP + Settings (install+settings), NPP Settings (settings-only), Install NPP (install-only)",
+    "Bundled notepadpp-settings.zip extracted to %APPDATA%\\Notepad++ (full replace)",
+    "Mode resolution chain: -Mode param > $env:NPP_MODE > default install+settings",
+    "New keywords: npp+settings, npp-settings, install-npp with modes map in install-keywords.json",
+    "run.ps1 keyword resolver now reads modes map and sets $env:NPP_MODE per script",
+    "Updated help tables and Available Scripts section with NPP variant keywords"
+  ]
+}

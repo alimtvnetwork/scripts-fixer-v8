@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "mysql",
+    "versionFlag": "--version",
+    "name": "MariaDB",
+    "desc": "MySQL-compatible fork with extra features",
+    "type": "sql",
+    "chocoPackage": "mariadb"
+  }
+}

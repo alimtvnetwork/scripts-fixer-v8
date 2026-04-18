@@ -1,0 +1,50 @@
+{
+  "version": "0.4.0",
+  "tag": "v0.4.0",
+  "createdAt": "2026-04-06T00:00:00Z",
+  "isLatest": false,
+  "draft": false,
+  "preRelease": false,
+  "changelog": {
+    "summary": "Error tracking, registry API migration, database menu option, and spec updates",
+    "categories": {
+      "added": [
+        "Save-InstalledError catch blocks in all 13 install helper scripts (vscode, choco, nodejs, pnpm, python, golang, git, github-desktop, mingw, winget, php, powershell, databases)",
+        "All Databases Only option (mode: alldb) as option 3 in script 12 quick menu",
+        "Error Tracking section in spec/shared/installed.md with field docs, JSON examples, and retry behaviour",
+        "Save-InstalledError column in spec tracking table showing coverage across all scripts"
+      ],
+      "changed": [
+        "Scripts 10 and 31 migrated from reg.exe to .NET Microsoft.Win32.Registry API to fix Invalid syntax errors with nested quotes",
+        "Script 12 questionnaire reordered: Install All (1), Dev Tools Only (2), All Databases Only (3), Custom (4)"
+      ],
+      "fixed": [
+        "Registry command failures in scripts 10 (VS Code context menu) and 31 (PowerShell context menu) caused by cmd.exe /c parsing of nested quotes in pwsh.exe -Command strings"
+      ],
+      "docs": [
+        "Updated spec/shared/installed.md with error JSON schema fields (lastError, errorAt), recovery examples, and retry behaviour",
+        "Updated scripts/10-vscode-context-menu-fix/issues.md with root cause analysis and .NET API migration notes"
+      ]
+    },
+    "filesChanged": [
+      "scripts/01-install-vscode/helpers/vscode.ps1",
+      "scripts/02-install-package-managers/helpers/choco.ps1",
+      "scripts/03-install-nodejs/helpers/nodejs.ps1",
+      "scripts/04-install-pnpm/helpers/pnpm.ps1",
+      "scripts/05-install-python/helpers/python.ps1",
+      "scripts/06-install-golang/helpers/golang.ps1",
+      "scripts/07-install-git/helpers/git.ps1",
+      "scripts/08-install-github-desktop/helpers/github-desktop.ps1",
+      "scripts/09-install-cpp/helpers/mingw.ps1",
+      "scripts/10-vscode-context-menu-fix/helpers/registry.ps1",
+      "scripts/12-install-all-dev-tools/helpers/questionnaire.ps1",
+      "scripts/14-install-winget/helpers/winget.ps1",
+      "scripts/16-install-php/helpers/php.ps1",
+      "scripts/17-install-powershell/helpers/powershell.ps1",
+      "scripts/31-pwsh-context-menu/helpers/pwsh-menu.ps1",
+      "scripts/databases/helpers/install-db.ps1",
+      "spec/shared/installed.md",
+      "scripts/version.json"
+    ]
+  }
+}

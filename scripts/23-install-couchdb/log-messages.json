@@ -1,0 +1,38 @@
+{
+  "scriptName": "Install CouchDB",
+  "description": "Install CouchDB -- Apache document database with REST API",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "checking": "Checking for CouchDB...",
+    "found": "CouchDB found: {version}",
+    "notFound": "CouchDB not found -- installing...",
+    "installing": "Installing CouchDB...",
+    "installSuccess": "CouchDB installed successfully: {version}",
+    "installFailed": "Failed to install CouchDB: {error}",
+    "notInPath": "CouchDB installed but not found in PATH -- restart your terminal.",
+    "disabled": "CouchDB is disabled in config -- skipping.",
+    "setupComplete": "CouchDB setup complete.",
+    "installPathTitle": "Installation Path Options",
+    "installPathDevDir": "Install to dev directory: {path}\\couchdb",
+    "installPathCustom": "Enter custom path:",
+    "installPathSystem": "Install to default system location",
+    "installPathPrompt": "Choose install location [1] Dev dir  [2] Custom path  [3] System default:",
+    "installPathChosen": "Install location: {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      ".\\run.ps1": "Install CouchDB",
+      ".\\run.ps1 -Help": "Show this help",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

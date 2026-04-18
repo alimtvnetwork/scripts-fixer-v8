@@ -1,0 +1,47 @@
+{
+  "scriptName": "Install C++ (MinGW-w64)",
+  "description": "Installs MinGW-w64 C++ compiler via Chocolatey and configures PATH.",
+  "messages": {
+    "done": "C++ toolchain installation and configuration completed.",
+    "notAdmin": "This script must be run as Administrator.",
+    "scriptDisabled": "C++ installation is disabled in config.",
+    "completedWithWarnings": "Completed with some warnings -- check output above.",
+    "commandInfo": "Command: {command}",
+    "chocoPackageName": "Chocolatey package name: {name}",
+    "mingwNotInstalled": "MinGW-w64 is not installed -- installing via Chocolatey...",
+    "mingwNotInPath": "MinGW installed but g++ not found in PATH -- may need a new terminal",
+    "mingwAlreadyInstalled": "MinGW-w64 is already installed",
+    "mingwVersion": "g++ version: {version}",
+    "installDirFromDevDir": "Using install directory derived from DEV_DIR: {path}",
+    "installDirOverride": "Using install directory override from config: {path}",
+    "installDirDefault": "Using default install directory: {path}",
+    "installDirUserProvided": "User provided install directory: {path}",
+    "installDirResolved": "Resolved install directory to: {path}",
+    "pathUpdateDisabled": "User PATH update is disabled in config",
+    "pathUpdated": "MinGW bin added to user PATH",
+    "verifyingCommand": "Verifying: {command}",
+    "verifySuccess": "{command} is available",
+    "verifyFailed": "{command} not found in PATH",
+    "installFailed": "MinGW install failed -- cannot continue",
+    "mingwSetupComplete": "C++ toolchain setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install + configure PATH (default)",
+      "install": "Install/upgrade MinGW only (skip PATH config)",
+      "configure": "Configure PATH only (skip install)",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 configure",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

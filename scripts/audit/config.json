@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "checks": {
+    "registryVsFolders": true,
+    "orchestratorConfig": true,
+    "orchestratorGroups": true,
+    "specCoverage": true,
+    "configLogMessages": true,
+    "staleRefsSpecs": true,
+    "staleRefsSuggestions": true,
+    "staleRefsPowerShell": true,
+    "keywordModes": true,
+    "verifySymlinks": true,
+    "uninstallCoverage": true,
+    "exportCoverage": true
+  },
+  "exportCapableScripts": ["32", "33", "36", "37"]
+}

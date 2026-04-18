@@ -1,0 +1,36 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install databases. Options: devDir (E:\\dev-tool\\databases\\<db>), custom (user picks path), system (default system location). Default: devDir.",
+    "default": "devDir"
+  },
+  "databases": {
+    "mysql":         { "enabled": true, "scriptId": "18", "folder": "18-install-mysql",         "name": "MySQL",            "desc": "Popular open-source relational database",      "type": "sql" },
+    "mariadb":       { "enabled": true, "scriptId": "19", "folder": "19-install-mariadb",       "name": "MariaDB",          "desc": "MySQL-compatible fork with extra features",    "type": "sql" },
+    "postgresql":    { "enabled": true, "scriptId": "20", "folder": "20-install-postgresql",    "name": "PostgreSQL",       "desc": "Advanced open-source relational database",     "type": "sql" },
+    "sqlite":        { "enabled": true, "scriptId": "21", "folder": "21-install-sqlite",        "name": "SQLite",           "desc": "File-based embedded SQL database",             "type": "file-based" },
+    "mongodb":       { "enabled": true, "scriptId": "22", "folder": "22-install-mongodb",       "name": "MongoDB",          "desc": "Document-oriented NoSQL database",             "type": "nosql-document" },
+    "couchdb":       { "enabled": true, "scriptId": "23", "folder": "23-install-couchdb",       "name": "CouchDB",          "desc": "Apache document database with REST API",      "type": "nosql-document" },
+    "redis":         { "enabled": true, "scriptId": "24", "folder": "24-install-redis",         "name": "Redis",            "desc": "In-memory key-value store and cache",          "type": "nosql-keyvalue" },
+    "cassandra":     { "enabled": true, "scriptId": "25", "folder": "25-install-cassandra",     "name": "Apache Cassandra", "desc": "Wide-column distributed NoSQL database",      "type": "nosql-column" },
+    "neo4j":         { "enabled": true, "scriptId": "26", "folder": "26-install-neo4j",         "name": "Neo4j",            "desc": "Graph database for connected data",           "type": "nosql-graph" },
+    "elasticsearch": { "enabled": true, "scriptId": "27", "folder": "27-install-elasticsearch", "name": "Elasticsearch",    "desc": "Full-text search and analytics engine",       "type": "search" },
+    "duckdb":        { "enabled": true, "scriptId": "28", "folder": "28-install-duckdb",        "name": "DuckDB",           "desc": "Analytical file-based columnar database",     "type": "file-based" },
+    "litedb":        { "enabled": true, "scriptId": "29", "folder": "29-install-litedb",        "name": "LiteDB",           "desc": ".NET embedded NoSQL file-based database",     "type": "file-based" },
+    "dbeaver":       { "enabled": true, "scriptId": "32", "folder": "32-install-dbeaver",       "name": "DBeaver Community","desc": "Universal database visualization and management tool", "type": "tool" }
+  },
+  "groups": [
+    { "letter": "a", "label": "All SQL (mysql, mariadb, postgresql, sqlite)",               "ids": ["mysql", "mariadb", "postgresql", "sqlite"] },
+    { "letter": "b", "label": "All NoSQL (mongodb, couchdb, redis, cassandra, neo4j)",      "ids": ["mongodb", "couchdb", "redis", "cassandra", "neo4j"] },
+    { "letter": "c", "label": "File-Based (sqlite, duckdb, litedb)",                        "ids": ["sqlite", "duckdb", "litedb"] },
+    { "letter": "d", "label": "Popular Stack (mysql, postgresql, mongodb, redis)",           "ids": ["mysql", "postgresql", "mongodb", "redis"] },
+    { "letter": "e", "label": "Search + Analytics (elasticsearch, duckdb)",                  "ids": ["elasticsearch", "duckdb"] },
+    { "letter": "f", "label": "Popular + DBeaver (mysql, postgresql, mongodb, redis, dbeaver)", "ids": ["mysql", "postgresql", "mongodb", "redis", "dbeaver"] },
+    { "letter": "g", "label": "All + DBeaver (everything + dbeaver)",                       "ids": ["mysql", "mariadb", "postgresql", "sqlite", "mongodb", "couchdb", "redis", "cassandra", "neo4j", "elasticsearch", "duckdb", "litedb", "dbeaver"] }
+  ],
+  "sequence": ["mysql", "mariadb", "postgresql", "sqlite", "mongodb", "couchdb", "redis", "cassandra", "neo4j", "elasticsearch", "duckdb", "litedb", "dbeaver"]
+}

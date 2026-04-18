@@ -1,0 +1,36 @@
+{
+  "scriptName": "Install Winget",
+  "description": "Installs and verifies the Winget package manager.",
+  "messages": {
+    "done": "Winget is installed and ready.",
+    "notAdmin": "This script must be run as Administrator.",
+    "scriptDisabled": "Winget installation is disabled in config.",
+    "wingetDisabled": "Winget is disabled in config -- skipping",
+    "wingetChecking": "Checking for Winget...",
+    "wingetFound": "Winget found: {version}",
+    "wingetNotFoundSkip": "Winget not found and installIfMissing is false -- skipping",
+    "wingetNotFound": "Winget not found -- attempting install...",
+    "wingetDownloading": "Downloading App Installer from: {url}",
+    "wingetInstalling": "Installing App Installer package...",
+    "wingetInstallSuccess": "Winget installed successfully: {version}",
+    "wingetNotInPath": "Winget install completed but winget.exe not found in PATH",
+    "wingetManualStore": "Try installing manually from the Microsoft Store",
+    "wingetInstallFailed": "Failed to install Winget: {error}",
+    "wingetManualHint": "Install manually: Microsoft Store -> 'App Installer'",
+    "setupComplete": "Winget setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

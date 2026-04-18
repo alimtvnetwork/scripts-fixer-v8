@@ -1,0 +1,38 @@
+{
+  "scriptName": "Install Neo4j",
+  "description": "Install Neo4j -- Graph database for connected data",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "checking": "Checking for Neo4j...",
+    "found": "Neo4j found: {version}",
+    "notFound": "Neo4j not found -- installing...",
+    "installing": "Installing Neo4j...",
+    "installSuccess": "Neo4j installed successfully: {version}",
+    "installFailed": "Failed to install Neo4j: {error}",
+    "notInPath": "Neo4j installed but not found in PATH -- restart your terminal.",
+    "disabled": "Neo4j is disabled in config -- skipping.",
+    "setupComplete": "Neo4j setup complete.",
+    "installPathTitle": "Installation Path Options",
+    "installPathDevDir": "Install to dev directory: {path}\\neo4j",
+    "installPathCustom": "Enter custom path:",
+    "installPathSystem": "Install to default system location",
+    "installPathPrompt": "Choose install location [1] Dev dir  [2] Custom path  [3] System default:",
+    "installPathChosen": "Install location: {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      ".\\run.ps1": "Install Neo4j",
+      ".\\run.ps1 -Help": "Show this help",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

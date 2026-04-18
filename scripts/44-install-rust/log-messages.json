@@ -1,0 +1,50 @@
+{
+  "scriptName": "Install Rust (rustup)",
+  "description": "Installs Rust toolchain via rustup, configures components, and adds cargo/bin to PATH.",
+  "messages": {
+    "rustAlreadyInstalled": "Rust is already installed: {version}",
+    "rustInstallSuccess": "Rust installed successfully: {version}",
+    "rustUpgradeSuccess": "Rust upgraded successfully: {version}",
+    "rustNotFound": "Rust not found, installing via rustup...",
+    "downloadingRustup": "Downloading rustup-init.exe...",
+    "runningRustupInit": "Running rustup-init (default toolchain: {toolchain})...",
+    "componentInstalling": "Installing component: {component}",
+    "componentAlreadyInstalled": "Component already installed: {component}",
+    "componentInstallSuccess": "Component installed: {component}",
+    "targetAdding": "Adding target: {target}",
+    "targetAlreadyAdded": "Target already added: {target}",
+    "cargoPackageInstalling": "Installing cargo package: {package}",
+    "cargoPackageSuccess": "Cargo package installed: {package}",
+    "addingToPath": "Adding cargo\\bin to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "Rust installation is disabled in config.",
+    "savingResolved": "Saving resolved state...",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "rustSetupComplete": "Rust toolchain setup complete.",
+    "uninstalling": "Uninstalling Rust via rustup self uninstall...",
+    "uninstallSuccess": "Rust uninstalled successfully.",
+    "uninstallFailed": "Rust uninstall failed -- may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Rust removed, tracking purged."
+  },
+  "versionDetect": [
+    { "command": "rustc",  "flag": "--version", "label": "rustc" },
+    { "command": "cargo",  "flag": "--version", "label": "cargo" },
+    { "command": "rustup", "flag": "--version", "label": "rustup" }
+  ],
+  "help": {
+    "commands": {
+      "all": "Install Rust + components + PATH setup (default)",
+      "install": "Install/upgrade Rust toolchain only",
+      "components": "Install configured components (clippy, rustfmt, rust-analyzer)",
+      "uninstall": "Uninstall completely via rustup self uninstall"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 components",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

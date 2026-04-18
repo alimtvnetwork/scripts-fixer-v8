@@ -1,0 +1,100 @@
+{
+  "enabled": true,
+  "devDirSubfolder": "llama-cpp",
+  "path": {
+    "updateUserPath": true
+  },
+  "modelsConfig": {
+    "devDirSubfolder": "llama-models"
+  },
+  "aria2c": {
+    "maxConnections": 16,
+    "maxDownloads": 16,
+    "chunkSize": "1M",
+    "continueDownload": true
+  },
+  "executables": [
+    {
+      "slug": "llama-b7709-cuda",
+      "displayName": "llama.cpp CUDA 12.4 b7709",
+      "requires": "cuda",
+      "targetFolderName": "llama-b7709-cuda-12.4-x64",
+      "isZip": true,
+      "downloadUrl": "https://github.com/ggml-org/llama.cpp/releases/download/b7709/llama-b7709-bin-win-cuda-12.4-x64.zip",
+      "outputFileName": "llama-b7709-bin-win-cuda-12.4-x64.zip",
+      "expectedSizeBytes": 314572800,
+      "addToPath": true,
+      "relativeBinSubfolder": "bin",
+      "verifyExe": "llama-cli.exe",
+      "verifyArgs": "--help"
+    },
+    {
+      "slug": "llama-b6869-cuda",
+      "displayName": "llama.cpp CUDA 12.x b6869",
+      "requires": "cuda",
+      "targetFolderName": "llama-b6869-cuda-12.4-x64",
+      "isZip": true,
+      "downloadUrl": "https://github.com/ggml-org/llama.cpp/releases/download/b6869/llama-b6869-bin-win-cuda-12.4-x64.zip",
+      "outputFileName": "llama-b6869-bin-win-cuda-12.4-x64.zip",
+      "expectedSizeBytes": 293601280,
+      "addToPath": true,
+      "relativeBinSubfolder": "bin",
+      "verifyExe": "llama-cli.exe",
+      "verifyArgs": "--help"
+    },
+    {
+      "slug": "llama-cudart-b6869",
+      "displayName": "llama.cpp CUDA 12.4 + bundled runtime",
+      "requires": "cuda",
+      "targetFolderName": "cudart-llama-b6869-cuda-12.4-x64",
+      "isZip": true,
+      "downloadUrl": "https://github.com/ggml-org/llama.cpp/releases/download/b6869/cudart-llama-bin-win-cuda-12.4-x64.zip",
+      "outputFileName": "cudart-llama-bin-win-cuda-12.4-x64.zip",
+      "expectedSizeBytes": 209715200,
+      "addToPath": true,
+      "relativeBinSubfolder": "bin",
+      "verifyExe": "llama-cli.exe",
+      "verifyArgs": "--help"
+    },
+    {
+      "slug": "llama-avx2-cpu",
+      "displayName": "llama.cpp AVX2 CPU fallback",
+      "requires": "avx2",
+      "targetFolderName": "llama-avx2-x64",
+      "isZip": true,
+      "downloadUrl": "https://github.com/ggml-org/llama.cpp/releases/latest/download/llama-bin-win-avx2-x64.zip",
+      "outputFileName": "llama-bin-win-avx2-x64.zip",
+      "expectedSizeBytes": 52428800,
+      "addToPath": true,
+      "relativeBinSubfolder": "bin",
+      "verifyExe": "llama-cli.exe",
+      "verifyArgs": "--help"
+    },
+    {
+      "slug": "koboldcpp-cuda",
+      "displayName": "KoboldCPP Windows x64 CUDA (single EXE)",
+      "requires": "cuda",
+      "targetFolderName": "koboldcpp-cuda",
+      "isZip": false,
+      "downloadUrl": "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe",
+      "outputFileName": "koboldcpp.exe",
+      "addToPath": true,
+      "relativeBinSubfolder": "",
+      "verifyExe": "koboldcpp.exe",
+      "verifyArgs": "--help"
+    },
+    {
+      "slug": "koboldcpp-cpu",
+      "displayName": "KoboldCPP Windows x64 CPU (single EXE)",
+      "requires": "",
+      "targetFolderName": "koboldcpp-cpu",
+      "isZip": false,
+      "downloadUrl": "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp_nocuda.exe",
+      "outputFileName": "koboldcpp_nocuda.exe",
+      "addToPath": true,
+      "relativeBinSubfolder": "",
+      "verifyExe": "koboldcpp_nocuda.exe",
+      "verifyArgs": "--help"
+    }
+  ]
+}

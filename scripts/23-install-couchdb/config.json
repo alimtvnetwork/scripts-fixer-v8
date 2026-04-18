@@ -1,0 +1,20 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "couchdb",
+    "versionFlag": "-V",
+    "name": "CouchDB",
+    "desc": "Apache document database with REST API",
+    "type": "nosql-document",
+    "chocoPackage": "couchdb"
+  }
+}

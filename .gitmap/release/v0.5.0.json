@@ -1,0 +1,22 @@
+{
+  "version": "0.5.0",
+  "tag": "v0.5.0",
+  "date": "2026-04-06",
+  "title": "Database symlink support -- install to E:\\dev\\databases via directory junctions",
+  "changes": {
+    "added": [
+      "scripts/shared/symlink-utils.ps1 -- Resolve-DbInstallDir and New-DbSymlink functions",
+      "Directory junction creation from E:\\dev\\databases\\<name> to actual Chocolatey install paths",
+      "Symlink log messages in shared/log-messages.json (7 new messages)",
+      "All 12 database run.ps1 files now dot-source symlink-utils.ps1 and call New-DbSymlink after install",
+      "databases/run.ps1 orchestrator also dot-sources symlink-utils.ps1"
+    ],
+    "changed": [
+      "installMode 'devDir' config option now actually creates junctions to the dev directory",
+      "Version bumped to 0.5.0 (minor bump for new feature)"
+    ],
+    "fixed": [
+      "Databases previously installed to system default locations ignoring devDir config -- now symlinked to E:\\dev\\databases\\<name>"
+    ]
+  }
+}

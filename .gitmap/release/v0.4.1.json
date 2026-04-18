@@ -1,0 +1,81 @@
+{
+  "version": "0.4.1",
+  "tag": "v0.4.1",
+  "createdAt": "2026-04-07T01:30:00Z",
+  "isLatest": true,
+  "draft": false,
+  "preRelease": false,
+  "changelog": {
+    "summary": "Crash-safe error logging, VS Code/pwsh detection fallbacks, and full-path error diagnostics",
+    "categories": {
+      "added": [
+        "try/catch/finally wrapper in all 31 run.ps1 files -- Save-LogFile now always runs, even on unhandled exceptions",
+        "Warnings (warn-level) now captured in error log files alongside errors, with separate 'errors' and 'warnings' arrays",
+        "warnCount field added to error log JSON schema",
+        "4-tier VS Code exe fallback chain: config paths -> Chocolatey shim/lib -> Get-Command -> where.exe (script 10)",
+        "Chocolatey shim fallback for pwsh.exe detection (script 31)",
+        "Detailed per-step failure logging for all fallback paths in scripts 10 and 31"
+      ],
+      "changed": [
+        "fileExistsAtPath log message now includes the full file path being checked, not just True/False",
+        "File-not-found checks in scripts 10 and 31 now log at error/warn level instead of info (captured in error logs)",
+        "Get-InstalledDir function replaces $script:_InstalledDir variable for robust sourcing context",
+        "Save-InstalledRecord accepts empty version strings gracefully (falls back to 'unknown')",
+        "Error log creation trigger expanded: any warn OR fail event now generates an error log file"
+      ],
+      "fixed": [
+        "$script:_InstalledDir variable not set error -- replaced with Get-InstalledDir function that works regardless of dot-sourcing context",
+        "Empty version string error in Save-InstalledRecord when choco list returns no match",
+        "Missing error log files when scripts crashed with unhandled exceptions before Save-LogFile could run",
+        "VS Code exe not found after Chocolatey install because config.json only had user/system paths, not choco paths"
+      ],
+      "docs": [
+        "Issue 4 added to scripts/10-vscode-context-menu-fix/issues.md documenting Chocolatey path detection root cause",
+        "spec/shared/logging.md updated with warn-level capture, new error log schema (errors + warnings arrays), and expanded trigger conditions",
+        "spec/shared/installed.md updated with Error Tracking section, recovery examples, and retry behaviour docs"
+      ]
+    },
+    "filesChanged": [
+      "scripts/version.json",
+      "scripts/shared/logging.ps1",
+      "scripts/shared/installed.ps1",
+      "scripts/10-vscode-context-menu-fix/helpers/registry.ps1",
+      "scripts/10-vscode-context-menu-fix/log-messages.json",
+      "scripts/10-vscode-context-menu-fix/issues.md",
+      "scripts/31-pwsh-context-menu/helpers/pwsh-menu.ps1",
+      "scripts/31-pwsh-context-menu/log-messages.json",
+      "spec/shared/logging.md",
+      "spec/shared/installed.md",
+      "scripts/01-install-vscode/run.ps1",
+      "scripts/02-install-package-managers/run.ps1",
+      "scripts/03-install-nodejs/run.ps1",
+      "scripts/04-install-pnpm/run.ps1",
+      "scripts/05-install-python/run.ps1",
+      "scripts/06-install-golang/run.ps1",
+      "scripts/07-install-git/run.ps1",
+      "scripts/08-install-github-desktop/run.ps1",
+      "scripts/09-install-cpp/run.ps1",
+      "scripts/11-vscode-settings-sync/run.ps1",
+      "scripts/12-install-all-dev-tools/run.ps1",
+      "scripts/14-install-winget/run.ps1",
+      "scripts/15-windows-tweaks/run.ps1",
+      "scripts/16-install-php/run.ps1",
+      "scripts/17-install-powershell/run.ps1",
+      "scripts/18-install-mysql/run.ps1",
+      "scripts/19-install-mariadb/run.ps1",
+      "scripts/20-install-postgresql/run.ps1",
+      "scripts/21-install-sqlite/run.ps1",
+      "scripts/22-install-mongodb/run.ps1",
+      "scripts/23-install-couchdb/run.ps1",
+      "scripts/24-install-redis/run.ps1",
+      "scripts/25-install-cassandra/run.ps1",
+      "scripts/26-install-neo4j/run.ps1",
+      "scripts/27-install-elasticsearch/run.ps1",
+      "scripts/28-install-duckdb/run.ps1",
+      "scripts/29-install-litedb/run.ps1",
+      "scripts/31-pwsh-context-menu/run.ps1",
+      "scripts/audit/run.ps1",
+      "scripts/databases/run.ps1"
+    ]
+  }
+}

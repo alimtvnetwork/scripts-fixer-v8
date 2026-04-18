@@ -1,0 +1,46 @@
+{
+  "scriptName": "install-gitmap",
+  "description": "Installs gitmap CLI -- a Git repository navigator tool for Windows.",
+  "messages": {
+    "notAdmin": "This script requires admin privileges. Please run as Administrator.",
+    "checking": "Checking for gitmap...",
+    "found": "gitmap already installed",
+    "foundVersion": "gitmap already installed (v{version})",
+    "notFound": "gitmap not found -- will install now",
+    "installDir": "gitmap install directory: {path}",
+    "installing": "Installing gitmap via remote installer...",
+    "installSuccess": "gitmap installed successfully",
+    "installSuccessVersion": "gitmap installed successfully (v{version})",
+    "installFailed": "gitmap install failed: {error}",
+    "notInPath": "gitmap installed but not found in PATH (may need shell restart)",
+    "setupComplete": "gitmap setup complete",
+    "disabled": "gitmap install is disabled in config",
+    "downloadingInstaller": "Downloading gitmap installer from GitHub...",
+    "runningInstaller": "Running gitmap installer...",
+    "remoteInstallerFailed": "Remote installer failed -- falling back to ZIP download",
+    "downloadingZip": "Downloading gitmap release ZIP from: {url}",
+    "zipExtracted": "ZIP extracted to: {path}",
+    "zipFallbackFailed": "ZIP fallback also failed: {error}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "install": "Install gitmap CLI (default)",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "flags": {
+      "-Version <tag>": "Pin a specific release version (e.g. v1.0.0). Overrides fallbackTag in config.json"
+    },
+    "examples": [
+      ".\\run.ps1 -I 35",
+      ".\\run.ps1 -I 35 -Version v1.2.0",
+      ".\\run.ps1 install gitmap",
+      ".\\run.ps1 install gitmap -Version v1.0.0",
+      ".\\run.ps1 -I 35 -- -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

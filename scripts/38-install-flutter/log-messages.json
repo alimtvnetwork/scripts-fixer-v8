@@ -1,0 +1,58 @@
+{
+  "scriptName": "Install Flutter",
+  "description": "Installs Flutter SDK, Android Studio, Chrome, and VS Code extensions for Flutter development.",
+  "messages": {
+    "flutterAlreadyInstalled": "Flutter is already installed: {version}",
+    "flutterNotFound": "Flutter not found, installing via Chocolatey...",
+    "flutterInstallSuccess": "Flutter installed successfully: {version}",
+    "flutterUpgradeSuccess": "Flutter upgraded successfully: {version}",
+    "dartVersion": "Dart SDK version: {version}",
+    "androidStudioAlreadyInstalled": "Android Studio is already installed.",
+    "androidStudioNotFound": "Android Studio not found, installing via Chocolatey...",
+    "androidStudioInstallSuccess": "Android Studio installed successfully.",
+    "androidStudioSkipped": "Android Studio installation is disabled in config.",
+    "chromeAlreadyInstalled": "Google Chrome is already installed.",
+    "chromeNotFound": "Google Chrome not found, installing via Chocolatey...",
+    "chromeInstallSuccess": "Google Chrome installed successfully.",
+    "chromeSkipped": "Chrome installation is disabled in config.",
+    "installingVscodeExtensions": "Installing VS Code Flutter/Dart extensions...",
+    "vscodeExtensionInstalled": "VS Code extension installed: {extension}",
+    "vscodeExtensionAlready": "VS Code extension already installed: {extension}",
+    "vscodeExtensionsSkipped": "VS Code extensions installation is disabled in config.",
+    "runningFlutterDoctor": "Running flutter doctor...",
+    "flutterDoctorComplete": "flutter doctor completed.",
+    "acceptingLicenses": "Accepting Android licenses...",
+    "licensesAccepted": "Android licenses accepted.",
+    "addingToPath": "Adding Flutter to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "Flutter installation is disabled in config.",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "savingResolved": "Saving resolved state...",
+    "flutterSetupComplete": "Flutter development environment setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install Flutter SDK, Android Studio, Chrome, extensions (default)",
+      "install": "Install Flutter SDK only",
+      "android": "Install Android Studio only",
+      "chrome": "Install Chrome only",
+      "extensions": "Install VS Code Flutter/Dart extensions only",
+      "doctor": "Run flutter doctor only",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 android",
+      ".\\run.ps1 extensions",
+      ".\\run.ps1 doctor",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

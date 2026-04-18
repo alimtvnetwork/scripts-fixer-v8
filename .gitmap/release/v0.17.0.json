@@ -1,0 +1,20 @@
+{
+  "version": "0.17.0",
+  "branch": "release/v0.17.0",
+  "sourceBranch": "main",
+  "commit": "599422499eca9363713e1def44115ad993de661e",
+  "tag": "v0.17.0",
+  "assets": [],
+  "changelog": [
+    "**VSCode settings export** (script 11) -- `.\\run.ps1 -I 11 -- export`",
+    "Exports `settings.json`, `keybindings.json` from `%APPDATA%\\Code\\User\\` back to the script folder",
+    "Exports installed extensions list via `code --list-extensions` into `extensions.json`",
+    "Auto-detects first available edition (Stable or Insiders)",
+    "Saves resolved export state with timestamp",
+    "New help entry and example added"
+  ],
+  "draft": false,
+  "preRelease": false,
+  "createdAt": "2026-04-11T17:24:08Z",
+  "isLatest": false
+}

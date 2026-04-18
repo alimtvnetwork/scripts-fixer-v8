@@ -1,0 +1,9 @@
+{
+  "version": "0.6.7",
+  "date": "2026-04-07",
+  "highlights": [
+    "Notepad++ installer (script 33) with Chocolatey install and settings sync to %APPDATA%\\Notepad++\\",
+    "Install keywords: npp, notepad++, notepadpp, notepad-plus-plus",
+    "Added to Everything group preset and registry"
+  ]
+}

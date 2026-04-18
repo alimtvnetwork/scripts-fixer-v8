@@ -1,0 +1,49 @@
+{
+  "scriptName": "Install Ollama",
+  "description": "Downloads and installs Ollama for running local LLMs. Configures models directory and PATH.",
+  "messages": {
+    "ollamaAlreadyInstalled": "Ollama is already installed: {version}",
+    "ollamaNotFound": "Ollama not found, downloading installer from ollama.com...",
+    "ollamaDownloading": "Downloading Ollama installer to: {path}",
+    "ollamaDownloadFailed": "Failed to download Ollama installer: {error}",
+    "ollamaInstalling": "Running Ollama installer (silent mode)...",
+    "ollamaInstallSuccess": "Ollama installed successfully: {version}",
+    "ollamaInstallFailed": "Ollama installation failed: {error}",
+    "modelsConfiguring": "Configuring models directory: {path}",
+    "modelsEnvSet": "OLLAMA_MODELS environment variable set to: {path}",
+    "modelsEnvAlreadySet": "OLLAMA_MODELS already configured: {path}",
+    "modelsDirPrompt": "Enter models directory path (press Enter for default)",
+    "modelPulling": "Pulling model: {name} ({size})...",
+    "modelPullSuccess": "Model pulled successfully: {name}",
+    "modelPullFailed": "Failed to pull model {name}: {error}",
+    "modelPullSkipped": "Skipping model pull (user declined): {name}",
+    "pathAdded": "Ollama added to PATH: {path}",
+    "pathAlreadySet": "Ollama already in PATH",
+    "scriptDisabled": "Ollama installation is disabled in config.",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "savingResolved": "Saving resolved state...",
+    "ollamaSetupComplete": "Ollama setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Ollama removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "all": "Install Ollama, configure models dir, pull default models (default)",
+      "install": "Download and install Ollama only",
+      "models": "Configure models directory and pull models only",
+      "pull": "Pull default models only (requires Ollama installed)",
+      "uninstall": "Uninstall Ollama, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 models",
+      ".\\run.ps1 pull",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

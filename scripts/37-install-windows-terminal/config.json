@@ -1,0 +1,17 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "windowsTerminal": {
+    "enabled": true,
+    "verifyCommand": "wt",
+    "chocoPackage": "microsoft-windows-terminal",
+    "name": "Windows Terminal",
+    "desc": "Modern terminal emulator with GPU acceleration, tabs, and profiles",
+    "syncSettings": true,
+    "defaultMode": "install+settings",
+    "validModes": ["install+settings", "settings-only", "install-only"]
+  }
+}

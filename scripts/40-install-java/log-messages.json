@@ -1,0 +1,47 @@
+{
+  "scriptName": "Install Java (OpenJDK)",
+  "status": {
+    "ok":   "[  OK  ]",
+    "fail": "[ FAIL ]",
+    "info": "[ INFO ]",
+    "warn": "[ WARN ]",
+    "skip": "[ SKIP ]"
+  },
+  "messages": {
+    "scriptDisabled": "Script 40 is disabled in config.json -- skipping",
+    "notAdmin": "This script requires administrator privileges. Please run as admin.",
+    "unknownCommand": "Unknown command: {command}. Use: all | install | uninstall | --help",
+    "devDirFromParam": "Dev directory set from -Path parameter: {path}",
+    "javaAlreadyInstalled": "Java is already installed: {version}",
+    "javaNotFound": "Java not found -- installing via Chocolatey...",
+    "javaInstallSuccess": "Java installed successfully: {version}",
+    "javaUpgradeSuccess": "Java upgraded successfully: {version}",
+    "installingVersion": "Installing Java version: {version} (package: {package})",
+    "installLocationInfo": "Install target directory: {path}",
+    "availableVersions": "Available Java versions: {versions}",
+    "invalidVersion": "Invalid version '{version}'. Available: {versions}",
+    "settingJavaHome": "Setting JAVA_HOME environment variable: {path}",
+    "javaHomeAlreadySet": "JAVA_HOME already set: {path}",
+    "javaHomeSet": "JAVA_HOME configured: {path}",
+    "pathAlreadyContains": "User PATH already contains: {path}",
+    "addingToPath": "Adding to user PATH: {path}",
+    "savingResolved": "Saving resolved state...",
+    "javaSetupComplete": "Java (OpenJDK) setup complete!",
+    "uninstallingJava": "Uninstalling Java (OpenJDK)...",
+    "javaUninstallSuccess": "Java uninstalled successfully",
+    "javaUninstallFailed": "Java uninstall failed -- may need manual cleanup",
+    "javaUninstallComplete": "Java (OpenJDK) fully uninstalled and cleaned up",
+    "help": [
+      "Script 40 -- Install Java (OpenJDK)",
+      "",
+      "Usage:",
+      "  .\\run.ps1 -I 40                     Install Java (latest OpenJDK)",
+      "  .\\run.ps1 -I 40 -- install           Install Java (latest)",
+      "  .\\run.ps1 -I 40 -- install 21        Install OpenJDK 21 LTS",
+      "  .\\run.ps1 -I 40 -- install 17        Install OpenJDK 17 LTS",
+      "  .\\run.ps1 -I 40 -- uninstall         Full uninstall + cleanup",
+      "",
+      "Keywords: java, openjdk, jdk, jre"
+    ]
+  }
+}

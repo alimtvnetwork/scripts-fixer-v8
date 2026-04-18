@@ -1,0 +1,48 @@
+{
+  "enabled": true,
+  "chocoPackageName": "golang",
+  "alwaysUpgradeToLatest": true,
+  "devDirSubfolder": "go",
+  "gopath": {
+    "mode": "json-or-prompt",
+    "default": "E:\\dev-tool\\go",
+    "override": ""
+  },
+  "path": {
+    "updateUserPath": true,
+    "ensureGoBinInPath": true
+  },
+  "goEnv": {
+    "applyMode": "json-or-prompt",
+    "relativeToGopath": true,
+    "settings": {
+      "GOMODCACHE": {
+        "enabled": true,
+        "relativePath": "pkg\\mod",
+        "promptOnFirstRun": false
+      },
+      "GOCACHE": {
+        "enabled": true,
+        "relativePath": "cache\\build",
+        "promptOnFirstRun": false
+      },
+      "GOPROXY": {
+        "enabled": true,
+        "value": "https://proxy.golang.org,direct",
+        "promptOnFirstRun": false
+      },
+      "GOPRIVATE": {
+        "enabled": true,
+        "value": "",
+        "promptOnFirstRun": true
+      }
+    }
+  },
+  "tools": {
+    "golangciLint": {
+      "enabled": true,
+      "installPackage": "github.com/golangci/golangci-lint/cmd/golangci-lint@latest",
+      "desc": "Fast Go linters aggregator"
+    }
+  }
+}

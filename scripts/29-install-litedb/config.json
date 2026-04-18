@@ -1,0 +1,21 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "liteshell",
+    "versionFlag": "--version",
+    "name": "LiteDB",
+    "desc": ".NET embedded NoSQL file-based database",
+    "type": "file-based",
+    "installMethod": "dotnet-tool",
+    "dotnetPackage": "LiteDB.Shell"
+  }
+}

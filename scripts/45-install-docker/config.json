@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "chocoPackageName": "docker-desktop",
+  "alwaysUpgradeToLatest": true,
+  "dockerCompose": {
+    "enabled": true,
+    "note": "Docker Compose v2 is bundled with Docker Desktop"
+  },
+  "wsl2": {
+    "ensureEnabled": true,
+    "note": "Docker Desktop requires WSL2 backend on Windows"
+  },
+  "postInstall": {
+    "verifyDaemon": true,
+    "pullHelloWorld": false
+  },
+  "path": {
+    "updateUserPath": true,
+    "ensureDockerInPath": true
+  }
+}

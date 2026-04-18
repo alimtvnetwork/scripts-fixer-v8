@@ -1,0 +1,21 @@
+{
+  "workbench.colorTheme": "Photon High Contrast",
+  "remote.SSH.remotePlatform": {
+    "192.168.0.65": "linux",
+    "192.168.0.66": "linux"
+  },
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.openRepositoryInParentFolders": "always",
+  "redhat.telemetry.enabled": true,
+  "vs-kubernetes": {
+    "vscode-kubernetes.helm-path-linux": "/home/kube/.local/state/vs-kubernetes/tools/helm/linux-amd64/helm",
+    "vscode-kubernetes.minikube-path-linux": "/home/kube/.local/state/vs-kubernetes/tools/minikube/linux-amd64/minikube"
+  },
+  "editor.fontFamily": "Ubuntu Mono,Consolas, 'Courier New', monospace",
+  "editor.fontSize": 20,
+  "debug.console.fontSize": 18,
+  "terminal.integrated.fontSize": 18,
+  "go.toolsManagement.autoUpdate": true
+}

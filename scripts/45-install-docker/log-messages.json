@@ -1,0 +1,47 @@
+{
+  "scriptName": "Install Docker Desktop",
+  "description": "Installs Docker Desktop via Chocolatey with WSL2 backend support.",
+  "messages": {
+    "dockerAlreadyInstalled": "Docker is already installed: {version}",
+    "dockerInstallSuccess": "Docker Desktop installed successfully: {version}",
+    "dockerUpgradeSuccess": "Docker Desktop upgraded successfully: {version}",
+    "dockerNotFound": "Docker not found, installing Docker Desktop via Chocolatey...",
+    "composeVersion": "Docker Compose version: {version}",
+    "wsl2Checking": "Checking WSL2 availability...",
+    "wsl2Enabled": "WSL2 is enabled and available.",
+    "wsl2NotEnabled": "WSL2 is not enabled. Docker Desktop requires WSL2. Enable it via: wsl --install",
+    "daemonNotRunning": "Docker daemon is not running. Start Docker Desktop manually after reboot.",
+    "daemonRunning": "Docker daemon is running.",
+    "addingToPath": "Adding Docker to PATH: {path}",
+    "pathAlreadyContains": "PATH already contains: {path}",
+    "scriptDisabled": "Docker installation is disabled in config.",
+    "savingResolved": "Saving resolved state...",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "dockerSetupComplete": "Docker Desktop setup complete.",
+    "rebootRequired": "A reboot may be required for Docker Desktop to function. Please restart if prompted.",
+    "uninstalling": "Uninstalling Docker Desktop...",
+    "uninstallSuccess": "Docker Desktop uninstalled successfully.",
+    "uninstallFailed": "Docker Desktop uninstall failed -- may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Docker removed, tracking purged."
+  },
+  "versionDetect": [
+    { "command": "docker",         "flag": "--version",       "label": "docker" },
+    { "command": "docker-compose", "flag": "--version",       "label": "docker-compose" }
+  ],
+  "help": {
+    "commands": {
+      "all": "Install Docker Desktop + verify daemon + PATH setup (default)",
+      "install": "Install/upgrade Docker Desktop only",
+      "status": "Check Docker daemon and version status",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 install",
+      ".\\run.ps1 status",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

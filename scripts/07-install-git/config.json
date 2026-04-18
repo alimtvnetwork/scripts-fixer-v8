@@ -1,0 +1,51 @@
+{
+  "enabled": true,
+  "chocoPackageName": "git",
+  "alwaysUpgradeToLatest": true,
+  "gitLfs": {
+    "enabled": true,
+    "chocoPackageName": "git-lfs",
+    "alwaysUpgradeToLatest": true
+  },
+  "githubCli": {
+    "enabled": true,
+    "chocoPackageName": "gh",
+    "alwaysUpgradeToLatest": true,
+    "promptLogin": true
+  },
+  "gitConfig": {
+    "userName": {
+      "mode": "json-or-prompt",
+      "value": "",
+      "promptOnFirstRun": true
+    },
+    "userEmail": {
+      "mode": "json-or-prompt",
+      "value": "",
+      "promptOnFirstRun": true
+    },
+    "defaultBranch": {
+      "enabled": true,
+      "value": "main"
+    },
+    "credentialManager": {
+      "enabled": true,
+      "helper": "manager"
+    },
+    "lineEndings": {
+      "enabled": true,
+      "autocrlf": "true"
+    },
+    "editor": {
+      "enabled": true,
+      "value": "code --wait"
+    },
+    "pushAutoSetupRemote": {
+      "enabled": true
+    }
+  },
+  "path": {
+    "updateUserPath": true,
+    "ensureGitInPath": true
+  }
+}

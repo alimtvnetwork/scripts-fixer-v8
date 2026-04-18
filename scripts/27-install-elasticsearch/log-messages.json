@@ -1,0 +1,38 @@
+{
+  "scriptName": "Install Elasticsearch",
+  "description": "Install Elasticsearch -- Full-text search and analytics engine",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "checking": "Checking for Elasticsearch...",
+    "found": "Elasticsearch found: {version}",
+    "notFound": "Elasticsearch not found -- installing...",
+    "installing": "Installing Elasticsearch...",
+    "installSuccess": "Elasticsearch installed successfully: {version}",
+    "installFailed": "Failed to install Elasticsearch: {error}",
+    "notInPath": "Elasticsearch installed but not found in PATH -- restart your terminal.",
+    "disabled": "Elasticsearch is disabled in config -- skipping.",
+    "setupComplete": "Elasticsearch setup complete.",
+    "installPathTitle": "Installation Path Options",
+    "installPathDevDir": "Install to dev directory: {path}\\elasticsearch",
+    "installPathCustom": "Enter custom path:",
+    "installPathSystem": "Install to default system location",
+    "installPathPrompt": "Choose install location [1] Dev dir  [2] Custom path  [3] System default:",
+    "installPathChosen": "Install location: {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      ".\\run.ps1": "Install Elasticsearch",
+      ".\\run.ps1 -Help": "Show this help",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

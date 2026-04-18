@@ -1,0 +1,162 @@
+{
+  "folders": {},
+  "connections": {
+    "mysql-local": {
+      "provider": "mysql",
+      "driver": "mysql8",
+      "name": "MySQL -- localhost",
+      "save-password": true,
+      "configuration": {
+        "host": "localhost",
+        "port": "3306",
+        "database": "",
+        "url": "jdbc:mysql://localhost:3306/",
+        "type": "dev",
+        "auth-model": "native"
+      }
+    },
+    "mariadb-local": {
+      "provider": "mysql",
+      "driver": "mariaDB",
+      "name": "MariaDB -- localhost",
+      "save-password": true,
+      "configuration": {
+        "host": "localhost",
+        "port": "3306",
+        "database": "",
+        "url": "jdbc:mariadb://localhost:3306/",
+        "type": "dev",
+        "auth-model": "native"
+      }
+    },
+    "postgresql-local": {
+      "provider": "postgresql",
+      "driver": "postgresql",
+      "name": "PostgreSQL -- localhost",
+      "save-password": true,
+      "configuration": {
+        "host": "localhost",
+        "port": "5432",
+        "database": "postgres",
+        "url": "jdbc:postgresql://localhost:5432/postgres",
+        "type": "dev",
+        "auth-model": "native"
+      }
+    },
+    "sqlite-sample": {
+      "provider": "sqlite",
+      "driver": "sqlite_jdbc",
+      "name": "SQLite -- sample.db",
+      "save-password": false,
+      "configuration": {
+        "host": "",
+        "port": "",
+        "database": "C:\\dev-tool\\sqlite\\sample.db",
+        "url": "jdbc:sqlite:C:\\dev-tool\\sqlite\\sample.db",
+        "type": "dev"
+      }
+    },
+    "mongodb-local": {
+      "provider": "mongodb",
+      "driver": "mongodb",
+      "name": "MongoDB -- localhost",
+      "save-password": true,
+      "configuration": {
+        "host": "localhost",
+        "port": "27017",
+        "database": "",
+        "url": "mongodb://localhost:27017",
+        "type": "dev",
+        "auth-model": "native"
+      }
+    },
+    "redis-local": {
+      "provider": "redis",
+      "driver": "redis",
+      "name": "Redis -- localhost",
+      "save-password": false,
+      "configuration": {
+        "host": "localhost",
+        "port": "6379",
+        "database": "",
+        "url": "redis://localhost:6379",
+        "type": "dev"
+      }
+    },
+    "couchdb-local": {
+      "provider": "couchdb",
+      "driver": "couchdb",
+      "name": "CouchDB -- localhost",
+      "save-password": true,
+      "configuration": {
+        "host": "localhost",
+        "port": "5984",
+        "database": "",
+        "url": "http://localhost:5984",
+        "type": "dev",
+        "auth-model": "native"
+      }
+    },
+    "cassandra-local": {
+      "provider": "cassandra",
+      "driver": "cassandra_java",
+      "name": "Cassandra -- localhost",
+      "save-password": false,
+      "configuration": {
+        "host": "localhost",
+        "port": "9042",
+        "database": "",
+        "url": "jdbc:cassandra://localhost:9042/",
+        "type": "dev"
+      }
+    },
+    "neo4j-local": {
+      "provider": "neo4j",
+      "driver": "neo4j_java",
+      "name": "Neo4j -- localhost",
+      "save-password": true,
+      "configuration": {
+        "host": "localhost",
+        "port": "7687",
+        "database": "neo4j",
+        "url": "bolt://localhost:7687",
+        "type": "dev",
+        "auth-model": "native"
+      }
+    },
+    "elasticsearch-local": {
+      "provider": "elasticsearch",
+      "driver": "elasticsearch",
+      "name": "Elasticsearch -- localhost",
+      "save-password": false,
+      "configuration": {
+        "host": "localhost",
+        "port": "9200",
+        "database": "",
+        "url": "http://localhost:9200",
+        "type": "dev"
+      }
+    },
+    "duckdb-sample": {
+      "provider": "duckdb",
+      "driver": "duckdb_jdbc",
+      "name": "DuckDB -- sample.duckdb",
+      "save-password": false,
+      "configuration": {
+        "host": "",
+        "port": "",
+        "database": "C:\\dev-tool\\duckdb\\sample.duckdb",
+        "url": "jdbc:duckdb:C:\\dev-tool\\duckdb\\sample.duckdb",
+        "type": "dev"
+      }
+    }
+  },
+  "connection-types": {
+    "dev": {
+      "name": "Development",
+      "color": "170,255,170",
+      "description": "Local development databases",
+      "auto-commit": true
+    }
+  }
+}

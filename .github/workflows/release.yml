@@ -1,0 +1,146 @@
+name: Release
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggers on semver tags pushed to the repo (e.g. v0.30.1, v1.0.0).
+# Builds the release ZIP via release.ps1 and uploads it to the GitHub Release.
+# Implements Issue #7 from spec/ci-cd/readme.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to package (e.g. v0.30.1). Used only for manual runs.'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Package and publish release ZIP
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: resolve
+        shell: pwsh
+        run: |
+          $tagRef = if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+              '${{ inputs.tag }}'
+          } else {
+              '${{ github.ref_name }}'
+          }
+          $tagVersion = $tagRef.TrimStart('v')
+          "tag=$tagRef"         | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "version=$tagVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Resolved tag: $tagRef (version $tagVersion)"
+
+      - name: Verify version alignment
+        shell: pwsh
+        run: |
+          $tagVersion = '${{ steps.resolve.outputs.version }}'
+
+          $latestFile = '.gitmap/release/latest.json'
+          $isLatestPresent = Test-Path $latestFile
+          if (-not $isLatestPresent) {
+              Write-Host "::error file=$latestFile::latest.json missing -- cannot verify tag alignment"
+              exit 1
+          }
+          $latestVersion = (Get-Content $latestFile -Raw | ConvertFrom-Json).version
+
+          $versionFile = 'scripts/version.json'
+          $isVersionPresent = Test-Path $versionFile
+          if (-not $isVersionPresent) {
+              Write-Host "::error file=$versionFile::version.json missing -- cannot verify tag alignment"
+              exit 1
+          }
+          $scriptsVersion = (Get-Content $versionFile -Raw | ConvertFrom-Json).version
+
+          Write-Host "Tag version            : $tagVersion"
+          Write-Host "latest.json version    : $latestVersion"
+          Write-Host "scripts/version.json   : $scriptsVersion"
+
+          $isTagMatchingLatest = $tagVersion -eq $latestVersion
+          if (-not $isTagMatchingLatest) {
+              Write-Host "::error::Tag '$tagVersion' does not match .gitmap/release/latest.json '$latestVersion'."
+              exit 1
+          }
+
+          $isScriptsAligned = $scriptsVersion -eq $latestVersion
+          if (-not $isScriptsAligned) {
+              Write-Host "::warning::scripts/version.json ($scriptsVersion) drifted from latest.json ($latestVersion). See spec/ci-cd Issue #1."
+          }
+
+      - name: Build release ZIP
+        shell: pwsh
+        run: ./release.ps1 -Force
+
+      - name: Locate release artifact
+        id: artifact
+        shell: pwsh
+        run: |
+          $version = '${{ steps.resolve.outputs.version }}'
+          $zipPath = ".release/dev-tools-setup-v$version.zip"
+          $isZipPresent = Test-Path $zipPath
+          if (-not $isZipPresent) {
+              Write-Host "::error file=$zipPath::Expected release ZIP was not produced by release.ps1"
+              exit 1
+          }
+          $zipSizeKB = [math]::Round((Get-Item $zipPath).Length / 1024, 1)
+          Write-Host "Built artifact: $zipPath ($zipSizeKB KB)"
+          "path=$zipPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Smoke test ZIP (run.ps1 -h)
+        shell: pwsh
+        run: |
+          $zipPath = '${{ steps.artifact.outputs.path }}'
+          $extractDir = Join-Path $env:RUNNER_TEMP "release-smoke"
+          if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+          Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
+
+          $runScript = Join-Path $extractDir 'run.ps1'
+          $isRunPresent = Test-Path $runScript
+          if (-not $isRunPresent) {
+              Write-Host "::error file=$runScript::run.ps1 missing inside packaged ZIP"
+              exit 1
+          }
+
+          # Help screen must complete without throwing.
+          & $runScript -h | Out-Null
+          if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) {
+              Write-Host "::error::run.ps1 -h exited with code $LASTEXITCODE inside extracted ZIP"
+              exit 1
+          }
+          Write-Host "Smoke test passed: run.ps1 -h executed cleanly from packaged ZIP."
+
+      - name: Compute SHA256 checksum
+        id: checksum
+        shell: pwsh
+        run: |
+          $zipPath = '${{ steps.artifact.outputs.path }}'
+          $hash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLower()
+          $checksumFile = "$zipPath.sha256"
+          "$hash  $(Split-Path $zipPath -Leaf)" | Set-Content -Path $checksumFile -Encoding ASCII
+          Write-Host "SHA256: $hash"
+          "path=$checksumFile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.resolve.outputs.tag }}
+          name: ${{ steps.resolve.outputs.tag }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            ${{ steps.artifact.outputs.path }}
+            ${{ steps.checksum.outputs.path }}

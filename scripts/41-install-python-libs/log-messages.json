@@ -1,0 +1,57 @@
+{
+  "scriptName": "Install Python Libraries",
+  "description": "Installs common Python libraries via pip into the configured PYTHONUSERBASE directory.",
+  "messages": {
+    "pythonNotFound": "Python is not installed and automatic bootstrap failed. Run script 05 as administrator.",
+    "pipNotFound": "pip is not available. Ensure Python was installed correctly.",
+    "scriptDisabled": "Python libraries installation is disabled in config.",
+    "notAdmin": "This script requires administrator privileges.",
+    "unknownCommand": "Unknown command: {command}. Use -Help for usage.",
+    "installingAll": "Installing all Python libraries ({count} packages)...",
+    "installingGroup": "Installing {group} libraries: {packages}",
+    "installingCustom": "Installing custom packages: {packages}",
+    "packageInstallSuccess": "Installed: {package}",
+    "packageInstallFailed": "Failed to install: {package} -- {error}",
+    "packageAlreadyInstalled": "Already installed: {package} ({version})",
+    "installingSinglePackage": "Installing {package}...",
+    "listingGroups": "Available library groups:",
+    "groupEntry": "  {name} -- {label}: {packages}",
+    "listingInstalled": "Currently installed pip packages:",
+    "savingResolved": "Saving resolved state...",
+    "setupComplete": "Python libraries installation complete. {success}/{total} succeeded.",
+    "usingUserSite": "Installing to PYTHONUSERBASE: {path}",
+    "noUserSite": "PYTHONUSERBASE not set. Libraries will install to default location.",
+    "uninstallingAll": "Uninstalling all tracked Python libraries...",
+    "uninstallingPackage": "Uninstalling {package}...",
+    "uninstallSuccess": "Uninstalled: {package}",
+    "uninstallFailed": "Failed to uninstall: {package} -- {error}",
+    "uninstallComplete": "Python libraries uninstall complete.",
+    "devDirFromParam": "Using user-specified dev directory: {path}"
+  },
+  "help": {
+    "commands": {
+      "all": "Install all configured libraries (default)",
+      "group <name>": "Install a specific library group (ml, data, viz, web, scraping, cv, db)",
+      "add <pkg1> <pkg2>": "Install specific packages by name",
+      "list": "List available groups and their packages",
+      "installed": "Show currently installed pip packages",
+      "uninstall": "Uninstall all tracked libraries",
+      "uninstall <pkg>": "Uninstall specific packages"
+    },
+    "parameters": {
+      "-Path": "Custom dev directory path (overrides smart detection)"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 all",
+      ".\\run.ps1 group ml",
+      ".\\run.ps1 group viz",
+      ".\\run.ps1 add jupyterlab streamlit",
+      ".\\run.ps1 list",
+      ".\\run.ps1 installed",
+      ".\\run.ps1 uninstall",
+      ".\\run.ps1 uninstall numpy pandas",
+      ".\\run.ps1 -Help"
+    ]
+  }
+}

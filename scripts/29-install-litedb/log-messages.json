@@ -1,0 +1,38 @@
+{
+  "scriptName": "Install LiteDB",
+  "description": "Install LiteDB -- .NET embedded NoSQL file-based database",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "checking": "Checking for LiteDB...",
+    "found": "LiteDB found: {version}",
+    "notFound": "LiteDB not found -- installing...",
+    "installing": "Installing LiteDB...",
+    "installSuccess": "LiteDB installed successfully: {version}",
+    "installFailed": "Failed to install LiteDB: {error}",
+    "notInPath": "LiteDB installed but not found in PATH -- restart your terminal.",
+    "disabled": "LiteDB is disabled in config -- skipping.",
+    "setupComplete": "LiteDB setup complete.",
+    "installPathTitle": "Installation Path Options",
+    "installPathDevDir": "Install to dev directory: {path}\\litedb",
+    "installPathCustom": "Enter custom path:",
+    "installPathSystem": "Install to default system location",
+    "installPathPrompt": "Choose install location [1] Dev dir  [2] Custom path  [3] System default:",
+    "installPathChosen": "Install location: {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      ".\\run.ps1": "Install LiteDB",
+      ".\\run.ps1 -Help": "Show this help",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

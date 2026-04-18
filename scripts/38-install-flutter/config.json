@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "flutter": {
+    "chocoPackageName": "flutter",
+    "alwaysUpgradeToLatest": true
+  },
+  "androidStudio": {
+    "enabled": true,
+    "chocoPackageName": "androidstudio"
+  },
+  "chrome": {
+    "enabled": true,
+    "chocoPackageName": "googlechrome"
+  },
+  "vscodeExtensions": {
+    "enabled": true,
+    "extensions": [
+      "Dart-Code.dart-code",
+      "Dart-Code.flutter"
+    ]
+  },
+  "path": {
+    "updateUserPath": true
+  },
+  "postInstall": {
+    "runFlutterDoctor": true,
+    "acceptAndroidLicenses": true
+  }
+}

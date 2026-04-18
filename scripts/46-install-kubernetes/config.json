@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "kubectl": {
+    "enabled": true,
+    "chocoPackageName": "kubernetes-cli",
+    "alwaysUpgradeToLatest": true
+  },
+  "minikube": {
+    "enabled": true,
+    "chocoPackageName": "minikube",
+    "alwaysUpgradeToLatest": true
+  },
+  "helm": {
+    "enabled": true,
+    "chocoPackageName": "kubernetes-helm",
+    "alwaysUpgradeToLatest": true
+  },
+  "lens": {
+    "enabled": false,
+    "chocoPackageName": "lens",
+    "note": "Lens Kubernetes IDE -- disabled by default"
+  },
+  "path": {
+    "updateUserPath": true
+  }
+}

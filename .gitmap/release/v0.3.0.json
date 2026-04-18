@@ -1,0 +1,48 @@
+{
+  "version": "0.3.0",
+  "tag": "v0.3.0",
+  "createdAt": "2026-04-05T00:00:00Z",
+  "isLatest": false,
+  "draft": false,
+  "preRelease": false,
+  "changelog": {
+    "summary": "Database scripts, installation tracking, front-loaded questionnaire, shared helpers, and structured logging",
+    "categories": {
+      "added": [
+        "Database installation scripts (18-29): MySQL, MariaDB, PostgreSQL, SQLite, MongoDB, CouchDB, Redis, Cassandra, Neo4j, Elasticsearch, DuckDB, LiteDB",
+        "Database orchestrator (scripts/databases/) with interactive menu, -All, -Only, -Skip, -DryRun flags",
+        "Generic Install-Database function in scripts/databases/helpers/install-db.ps1 (choco and dotnet-tool methods)",
+        "Installation tracking via .installed/ folder with per-tool JSON files (name, version, method, timestamps, error fields)",
+        "Shared installed.ps1 with Test-AlreadyInstalled, Save-InstalledRecord, Save-InstalledError, Get-InstalledRecord",
+        "Front-loaded questionnaire in script 12: dev dir, VS Code editions, sync mode, Git name/email asked upfront",
+        "Quick menu in script 12: Install All Dev (1), All Dev + All DBs (2), Custom (3)",
+        "-D / -Defaults flag for zero-prompt runs with default answers",
+        ".resolved/ folder pattern with Save-ResolvedData and Get-ResolvedDir shared helpers",
+        "Structured JSON logging system: Initialize-Logging, Write-Log event collection, Save-LogFile to .logs/",
+        "Error log auto-creation when fail-level events are recorded",
+        "Shared helpers: choco-utils.ps1 (Assert-Choco, Install/Upgrade-ChocoPackage), path-utils.ps1 (Test-InPath, Add-ToUserPath/MachinePath), dev-dir.ps1 (Resolve-DevDir, Initialize-DevDir)",
+        "Script 14 (winget): detection, install via MSIX, PATH refresh",
+        "Script 15 (windows-tweaks): system tweaks with confirmation skip under orchestrator",
+        "Script 16 (PHP): Chocolatey-based install with upgrade support",
+        "Script 17 (PowerShell): pwsh install/upgrade via Chocolatey",
+        "Script 31 (pwsh-context-menu): PowerShell Here context menu entries for folders, backgrounds, and admin mode",
+        "Audit script (scripts/audit/): system checks and validation",
+        "install-keywords.json mapping natural-language keywords to script IDs",
+        "Interactive menu in script 12: lettered group shortcuts, CSV/space number input, loop-back after install"
+      ],
+      "changed": [
+        "All install helpers now use Test-AlreadyInstalled to skip redundant installs when version matches",
+        "Write-Banner auto-reads scripts/version.json for project version display",
+        "Logging moved from scripts/logs/ to .logs/ at project root",
+        "Version numbers in Write-Log output highlighted in Yellow",
+        "Config files are declarative input only -- runtime state goes to .resolved/"
+      ],
+      "docs": [
+        "spec/shared/installed.md: installation tracking specification",
+        "spec/shared/logging.md: structured logging specification",
+        "Spec docs for all new scripts (14-29, 31, audit, databases)",
+        "Memory files for database-scripts, installed-tracking, interactive-menu, questionnaire, resolved-folder, shared-helpers, logging"
+      ]
+    }
+  }
+}

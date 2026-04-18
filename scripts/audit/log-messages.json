@@ -1,0 +1,33 @@
+{
+  "scriptName": "Audit Mode",
+  "description": "Scans all script configs, specs, and suggestions for stale IDs or renumbering inconsistencies.",
+  "messages": {
+    "notAdmin": "This script does not require admin privileges -- running anyway.",
+    "startingAudit": "Starting project audit...",
+    "checkPass": "[PASS] {check}",
+    "checkFail": "[FAIL] {check}",
+    "detail": "       {detail}",
+    "summaryHeader": "--- Audit Summary ---",
+    "summaryPass": "{count} check(s) passed",
+    "summaryFail": "{count} check(s) failed",
+    "allPassed": "All checks passed -- project is consistent.",
+    "someFailures": "Some checks failed -- review the output above.",
+    "reportSaved": "Health report saved: {path}"
+  },
+  "help": {
+    "commands": {
+      "audit": "Run all consistency checks (default)",
+      "audit -Fix": "Run checks and auto-fix broken/missing symlinks",
+      "audit -DryRun": "Preview which symlinks -Fix would repair (no changes made)",
+      "audit -Report": "Run checks and save a JSON health report to logs/"
+    },
+    "examples": [
+      ".\\run.ps1 -I 13",
+      ".\\run.ps1 -I 13 -- -Help",
+      ".\\run.ps1 -I 13 -- -DryRun",
+      ".\\run.ps1 -I 13 -- -Fix",
+      ".\\run.ps1 -I 13 -- -Report",
+      ".\\run.ps1 health"
+    ]
+  }
+}

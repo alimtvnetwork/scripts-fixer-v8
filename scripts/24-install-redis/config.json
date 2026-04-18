@@ -1,0 +1,22 @@
+{
+  "devDir": {
+    "mode": "smart",
+    "default": "auto",
+    "override": ""
+  },
+  "installMode": {
+    "_comment": "Where to install. Options: devDir, custom, system.",
+    "default": "devDir"
+  },
+  "database": {
+    "enabled": true,
+    "verifyCommand": "redis-server",
+    "versionFlag": "--version",
+    "name": "Redis",
+    "desc": "In-memory key-value store and cache",
+    "type": "nosql-keyvalue",
+    "chocoPackage": "redis-64",
+    "fallbackPackage": "redis",
+    "_fallbackNote": "redis-64 depends on Memurai which often fails with MSI 1603. Fallback uses tporadowski/redis port."
+  }
+}

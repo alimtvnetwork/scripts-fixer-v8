@@ -1,0 +1,38 @@
+{
+  "enabled": true,
+  "modes": {
+    "normal": {
+      "contextMenuLabel": "Open PowerShell Here",
+      "registryPaths": {
+        "directory": "Registry::HKEY_CLASSES_ROOT\\Directory\\shell\\PowerShellHere",
+        "background": "Registry::HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\PowerShellHere"
+      },
+      "commandArgs": {
+        "directory": "\"{exe}\" -NoExit -Command \"Set-Location -LiteralPath '%V'\"",
+        "background": "\"{exe}\" -NoExit -Command \"Set-Location -LiteralPath '%V'\""
+      }
+    },
+    "admin": {
+      "contextMenuLabel": "Open PowerShell Here as Admin",
+      "registryPaths": {
+        "directory": "Registry::HKEY_CLASSES_ROOT\\Directory\\shell\\PowerShellHereAdmin",
+        "background": "Registry::HKEY_CLASSES_ROOT\\Directory\\Background\\shell\\PowerShellHereAdmin"
+      },
+      "commandArgs": {
+        "directory": "\"{exe}\" -NoExit -Command \"Set-Location -LiteralPath '%V'\"",
+        "background": "\"{exe}\" -NoExit -Command \"Set-Location -LiteralPath '%V'\""
+      },
+      "runas": true,
+      "extended": false
+    }
+  },
+  "enabledModes": ["normal", "admin"],
+  "pwshPaths": {
+    "programFiles": "C:\\Program Files\\PowerShell\\{major}\\pwsh.exe",
+    "winget": "%LOCALAPPDATA%\\Microsoft\\WindowsApps\\pwsh.exe",
+    "legacy": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+  },
+  "verifyCommand": "pwsh",
+  "versionFlag": "--version",
+  "fallbackToLegacy": true
+}

@@ -1,0 +1,38 @@
+{
+  "scriptName": "Install MariaDB",
+  "description": "Install MariaDB -- MySQL-compatible fork with extra features",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "checking": "Checking for MariaDB...",
+    "found": "MariaDB found: {version}",
+    "notFound": "MariaDB not found -- installing...",
+    "installing": "Installing MariaDB...",
+    "installSuccess": "MariaDB installed successfully: {version}",
+    "installFailed": "Failed to install MariaDB: {error}",
+    "notInPath": "MariaDB installed but not found in PATH -- restart your terminal.",
+    "disabled": "MariaDB is disabled in config -- skipping.",
+    "setupComplete": "MariaDB setup complete.",
+    "installPathTitle": "Installation Path Options",
+    "installPathDevDir": "Install to dev directory: {path}\\mariadb",
+    "installPathCustom": "Enter custom path:",
+    "installPathSystem": "Install to default system location",
+    "installPathPrompt": "Choose install location [1] Dev dir  [2] Custom path  [3] System default:",
+    "installPathChosen": "Install location: {path}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      ".\\run.ps1": "Install MariaDB",
+      ".\\run.ps1 -Help": "Show this help",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

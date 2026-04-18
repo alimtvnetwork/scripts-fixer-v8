@@ -1,0 +1,23 @@
+{
+  "scriptName": "Install Chocolatey",
+  "description": "Installs and updates the Chocolatey package manager.",
+  "messages": {
+    "done": "Chocolatey is installed and ready.",
+    "notAdmin": "This script must be run as Administrator.",
+    "scriptDisabled": "Chocolatey installation is disabled in config.",
+    "completedWithWarnings": "Completed with some warnings -- check output above.",
+    "setupComplete": "Chocolatey setup complete.",
+    "chocoDisabled": "Chocolatey is disabled in config -- skipping",
+    "chocoUpgrading": "Upgrading Chocolatey itself to latest...",
+    "chocoUpgradeIssues": "Chocolatey self-upgrade had issues: {output}",
+    "chocoUpToDate": "Chocolatey is up to date",
+    "chocoUpgradeFailed": "Failed to upgrade Chocolatey: {error}"
+  },
+  "help": {
+    "commands": {},
+    "examples": [
+      ".\\run.ps1",
+      ".\\run.ps1 -Help"
+    ]
+  }
+}

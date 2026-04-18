@@ -1,0 +1,38 @@
+{
+  "scriptName": "install-sticky-notes",
+  "description": "Installs Simple Sticky Notes -- lightweight desktop sticky notes for Windows.",
+  "messages": {
+    "notAdmin": "This script requires admin privileges. Please run as Administrator.",
+    "checking": "Checking for Simple Sticky Notes...",
+    "found": "Simple Sticky Notes already installed",
+    "notFound": "Simple Sticky Notes not found -- will install now",
+    "installing": "Installing Simple Sticky Notes via Chocolatey...",
+    "installSuccess": "Simple Sticky Notes installed successfully",
+    "installFailed": "Simple Sticky Notes install failed: {error}",
+    "notInPath": "Simple Sticky Notes installed but executable not found in PATH (may need shell restart)",
+    "setupComplete": "Simple Sticky Notes setup complete",
+    "disabled": "Simple Sticky Notes install is disabled in config",
+    "dataFolderCreated": "Created custom data folder: {path}",
+    "dataFolderExists": "Custom data folder already exists: {path}",
+    "dataFolderSymlinked": "Symlinked SSN data to custom folder: {path}",
+    "dataFolderAlreadyLinked": "SSN data folder already linked to: {path}",
+    "dataFolderSkipped": "Custom data folder config disabled -- using default location",
+    "dataFolderFailed": "Failed to set up custom data folder: {error}",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "install": "Install Simple Sticky Notes (default)",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1 -I 34",
+      ".\\run.ps1 install sticky-notes",
+      ".\\run.ps1 -I 34 -- -Help",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}

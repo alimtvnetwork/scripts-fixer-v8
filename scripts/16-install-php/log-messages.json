@@ -1,0 +1,46 @@
+{
+  "scriptName": "Install PHP",
+  "description": "Installs PHP and/or phpMyAdmin via Chocolatey. Supports 3 modes.",
+  "messages": {
+    "notAdmin": "This script must be run as Administrator.",
+    "scriptDisabled": "PHP installation is disabled in config.",
+    "phpDisabled": "PHP is disabled in config -- skipping.",
+    "phpChecking": "Checking for PHP...",
+    "phpFound": "PHP found: {version}",
+    "phpNotFound": "PHP not found -- installing via Chocolatey...",
+    "phpInstalling": "Installing PHP via Chocolatey...",
+    "phpInstallSuccess": "PHP installed successfully: {version}",
+    "phpInstallFailed": "Failed to install PHP: {error}",
+    "phpNotInPath": "PHP installed but not found in PATH -- restart your terminal.",
+    "pmaChecking": "Checking for phpMyAdmin...",
+    "pmaFound": "phpMyAdmin already installed",
+    "pmaNotFound": "phpMyAdmin not found -- installing via Chocolatey...",
+    "pmaInstalling": "Installing phpMyAdmin via Chocolatey...",
+    "pmaInstallSuccess": "phpMyAdmin installed successfully",
+    "pmaInstallFailed": "Failed to install phpMyAdmin: {error}",
+    "pmaSkipped": "phpMyAdmin install skipped (php-only mode)",
+    "done": "PHP setup complete.",
+    "completedWithWarnings": "Completed with some warnings -- check output above.",
+    "setupComplete": "Setup complete.",
+    "uninstalling": "Uninstalling {name}...",
+    "uninstallSuccess": "{name} uninstalled successfully.",
+    "uninstallFailed": "{name} uninstall failed -- package may need manual removal.",
+    "uninstallComplete": "Uninstall complete. Package removed, tracking purged."
+  },
+  "help": {
+    "commands": {
+      "php+phpmyadmin": "Install PHP and phpMyAdmin (default)",
+      "php-only": "Install PHP only",
+      "phpmyadmin-only": "Install phpMyAdmin only",
+      "uninstall": "Uninstall completely, remove tracking, clean up"
+    },
+    "examples": [
+      ".\\run.ps1 install php",
+      ".\\run.ps1 install php+phpmyadmin",
+      ".\\run.ps1 install phpmyadmin",
+      ".\\run.ps1 -I 16",
+      ".\\run.ps1 -I 16 -- -Mode php-only",
+      ".\\run.ps1 uninstall"
+    ]
+  }
+}
