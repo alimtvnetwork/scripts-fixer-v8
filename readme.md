@@ -21,19 +21,19 @@
 ### One-liner install (Windows)
 
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v7/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.ps1 | iex
 ```
 
 ### One-liner install (Unix / macOS)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v7/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.sh | bash
 ```
 
 ### Manual clone
 
 ```powershell
-git clone https://github.com/alimtvnetwork/scripts-fixer-v7.git scripts-fixer
+git clone https://github.com/alimtvnetwork/scripts-fixer-v8.git scripts-fixer
 cd scripts-fixer
 ```
 
