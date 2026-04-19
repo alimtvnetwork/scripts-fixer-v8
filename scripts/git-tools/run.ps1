@@ -66,19 +66,27 @@ function Show-GitToolsHelp {
     Write-Host ""
 }
 
-# -- Parse --scan / --depth flags from $Rest --------------------------
+# -- Parse --scan / --depth / --list flags from $Rest ----------------
 function Resolve-SafeAllArgs {
     param([string[]]$Args)
 
     $scanValue = ""
     $depthValue = 4
+    $listMode = $false
     $i = 0
     $hasArgs = $null -ne $Args -and $Args.Count -gt 0
-    if (-not $hasArgs) { return @{ Scan = $scanValue; Depth = $depthValue } }
+    if (-not $hasArgs) { return @{ Scan = $scanValue; Depth = $depthValue; List = $listMode } }
 
     while ($i -lt $Args.Count) {
         $arg = $Args[$i]
         $argLower = "$arg".Trim().ToLower()
+
+        $isListFlag = $argLower -eq "--list" -or $argLower -eq "-list" -or $argLower -eq "--audit"
+        if ($isListFlag) {
+            $listMode = $true
+            $i++
+            continue
+        }
 
         $isScanFlag = $argLower -eq "--scan" -or $argLower -eq "-scan"
         if ($isScanFlag) {
@@ -121,7 +129,7 @@ function Resolve-SafeAllArgs {
 
         $i++
     }
-    return @{ Scan = $scanValue; Depth = $depthValue }
+    return @{ Scan = $scanValue; Depth = $depthValue; List = $listMode }
 }
 
 $normalizedAction = ""
@@ -131,7 +139,15 @@ if ($hasAction) { $normalizedAction = $Action.Trim().ToLower() }
 switch ($normalizedAction) {
     { $_ -in @("safe-all", "safeall", "gsa", "git-safe-all") } {
         $parsed = Resolve-SafeAllArgs -Args $Rest
+        if ($parsed.List) {
+            & (Join-Path $scriptDir "helpers\list-safe.ps1")
+            exit $LASTEXITCODE
+        }
         & (Join-Path $scriptDir "helpers\safe-all.ps1") -Scan $parsed.Scan -Depth $parsed.Depth
+        exit $LASTEXITCODE
+    }
+    { $_ -in @("list", "--list", "audit", "safe-list", "git-safe-list") } {
+        & (Join-Path $scriptDir "helpers\list-safe.ps1")
         exit $LASTEXITCODE
     }
     { $_ -in @("help", "--help", "-h", "") } {
