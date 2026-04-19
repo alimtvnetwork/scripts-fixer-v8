@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.40.2] -- 2026-04-19
+
+### Added (`gsa --list` audit action)
+
+- **New helper** `scripts/git-tools/helpers/list-safe.ps1` -- read-only audit of `git config --global --get-all safe.directory`. Sorts + dedupes entries, then prints: wildcard presence (`*` yes/no), full numbered list of per-repo entries, and summary `Total: N entries (W wildcard, R per-repo, D duplicates removed)`.
+- **New action** `git-tools list` (aliases: `--list`, `audit`, `safe-list`, `git-safe-list`) routes directly to the audit helper.
+- **New flag** `gsa --list` (also `--audit`) -- when set on a `safe-all` invocation, switches to audit mode and skips both wildcard-add and scan logic. `--scan` / `--depth` are ignored when `--list` is present.
+- **5 new log strings** in `scripts/git-tools/log-messages.json`: `listHeader`, `listEmpty`, `listWildcard`, `listNoWildcard`, `listSummary`.
+
+### Changed
+
+- **`scripts/git-tools/run.ps1`**: extended `Resolve-SafeAllArgs` with `List` field, added `list` action route in the dispatcher switch, expanded `Show-GitToolsHelp` with the new action + `--list` flag rows + a fourth example.
+- **`spec/git-tools/readme.md`**: documents the new audit mode + flag table row.
+- **Readme badge**: Changelog `v0.40.1 -> v0.40.2`.
+
+### Notes
+
+- The audit helper writes its own log file (`.logs/git-safe-list-<timestamp>.log`) -- separate from `git-safe-all` logs so audit runs don't pollute write-action history.
+- `--list` is the safest possible action: it requires no admin, makes zero changes, and is a useful first step before running `gsa --scan` (so you can diff before/after).
+
 ## [v0.40.1] -- 2026-04-19
 
 ### Added (`spec/script-registry-summary.md` auto-regen)
