@@ -2,6 +2,32 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.39.2] -- 2026-04-19
+
+### Added (2025 Batch -- Group B: `os` subcommand dispatcher)
+
+- **New dispatcher `scripts/os/run.ps1`** wires four Windows-housekeeping subcommands under a single namespace. Routes `os <action>` calls to per-action helpers, shows `os help` when called bare, and exits non-zero on unknown actions.
+- **`os clean`** (`scripts/os/helpers/clean.ps1`) -- self-elevates if not Admin, prompts for confirmation (skip via `-Yes` / `-Force`), then runs 5 housekeeping steps with per-step counts + bytes-freed reporting:
+  1. Wipe `C:\Windows\SoftwareDistribution\Download\*`
+  2. Wipe `%TEMP%` (per-item, errors logged with exact path -- CODE RED rule)
+  3. `C:\Windows\Temp` (skipped by default; opt-in via `-IncludeWindowsTemp`)
+  4. Clear all event logs via `wevtutil el | wevtutil cl`
+  5. Remove PSReadLine history file + `Clear-History` for current session
+  Final summary table prints per-step status + total MB/GB freed; exit status `partial` if any step had errors.
+- **`os hib-off` / `os hib-on`** (`scripts/os/helpers/hibernate.ps1`) -- self-elevates, captures `hiberfil.sys` size before/after, runs `powercfg.exe /hibernate off|on`, reports GB freed.
+- **`os flp`** (alias `os fix-long-path`, `scripts/os/helpers/longpath.ps1`) -- self-elevates, sets `HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled = 1` (DWORD), verifies via read-back, recommends reboot.
+- **`os add-user <name> <pass> [pin] [email]`** (`scripts/os/helpers/add-user.ps1`) -- per locked decision: password is plain CLI arg (visible in shell history -- accepted risk). Validates args before elevation. Creates user via `New-LocalUser` with `PasswordNeverExpires` + `AccountNeverExpires`, adds to `Users` group. PIN cannot be set non-interactively on modern Windows -- writes a one-time hint file to `%TEMP%\<name>-pin-hint.txt` and logs a `[NOTICE]`. Email is stored as the user's `comment` attribute via `net user /comment` and a `[NOTICE]` explains how to link a real Microsoft account interactively. Console summary masks the password.
+- **Shared admin/IO helpers** in `scripts/os/helpers/_common.ps1`: `Test-IsAdministrator`, `Assert-Admin` (re-launches the current PS host -- pwsh or powershell -- with `-Verb RunAs` and forwards original args), `Confirm-Action`, `Format-Bytes`, `Format-Gb`.
+
+### Changed
+
+- **Root dispatcher `run.ps1`** -- new bare command branch: `.\run.ps1 os <action> [args]` forwards everything after `os` to `scripts/os/run.ps1`. Consistent with the existing `models` / `path` / `update` / `export` / `status` / `doctor` dispatch pattern.
+- **`scripts/shared/install-keywords.json`** -- added 15 new keywords mapping to the new `"os:<action>"` array convention (e.g. `clean -> ["os:clean"]`, `hib-off -> ["os:hib-off"]`, `flp -> ["os:flp"]`, `add-user -> ["os:add-user"]`). The `os:` prefix is the discriminator the install dispatcher will use (Group D wiring) to route to subcommands instead of script IDs.
+
+### Spec & docs
+
+- Implemented per `spec/2025-batch/04-os-clean.md`, `07-fix-long-path.md`, `08-add-user.md`, `10-hibernate-off.md`. CODE RED file-path error rule applied to every Remove-Item / Set-ItemProperty / file-write failure -- exact path + exception message in every log line.
+
 ## [v0.39.1] -- 2026-04-19
 
 ### Added (2025 Batch -- Group A: 5 new single-tool installers)
