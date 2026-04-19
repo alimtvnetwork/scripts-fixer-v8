@@ -1,8 +1,8 @@
 # `_internal/` -- repo maintenance scripts
 
 These are NOT user-facing dev tools. They're maintenance scripts the project
-itself uses to keep generated docs / metadata in sync. None of them are
-wired into the registry, the dispatcher, or the keyword map.
+itself uses to keep generated docs / metadata in sync, plus CI quality gates.
+None of them are wired into the registry, the dispatcher, or the keyword map.
 
 ## generate-registry-summary.cjs
 
