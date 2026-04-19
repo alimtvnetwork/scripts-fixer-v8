@@ -584,6 +584,20 @@ Recognized as a **top 1% talent at Crossover** and one of the top software archi
 
 ---
 
+## License
+
+This project is licensed under the **MIT License** -- see the [LICENSE](LICENSE) file for the full text.
+
+```
+Copyright (c) 2026 Alim Ul Karim
+```
+
+You may use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, provided the copyright notice and permission notice are preserved. The software is provided "AS IS", without warranty of any kind.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
 <div align="center">
 
 *Built with clean architecture, external configs, and colorful terminal output -- because dev tools setup should be effortless.*
