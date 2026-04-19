@@ -36,6 +36,11 @@ _None._
 
 ## ✅ Completed
 
+### v0.38.1 (2026-04-19)
+- [x] `install.sh` mirrors CWD-aware target resolution (4-step decision tree, `test_cwd_is_safe`, `resolve_target_folder`)
+- [x] `install.sh` `--dry-run` flag with `[DRYRUN] ... (skipped)` lines for every mutating step
+- [x] `install.sh` final action: `pwsh ./run.ps1` (no `-d`), matching PowerShell
+
 ### v0.38.0 (2026-04-19)
 - [x] `install.ps1` CWD-aware target resolution (CWD\scripts-fixer when safe, sibling reuse, USERPROFILE fallback for protected dirs/drive roots)
 - [x] `install.ps1` final action changed: launches `.\run.ps1` with no args (was `-d` straight into Install All Dev Tools)
