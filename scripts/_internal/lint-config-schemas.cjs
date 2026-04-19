@@ -163,52 +163,72 @@ function lintInstaller(folder, file, cfg) {
   let hasFail = false;
   let hasWarn = false;
 
-  // R1 -- required fields
-  if (!f.name)        { emit(folder, file, "FAIL", "R1", "missing required field: name (or label)"); hasFail = true; }
-  if (!f.desc)        { emit(folder, file, "FAIL", "R1", "missing required field: desc (or description)"); hasFail = true; }
-  if (!f.validModes)  { emit(folder, file, "FAIL", "R1", "missing required field: validModes (must be array)"); hasFail = true; }
-  if (!f.defaultMode) { emit(folder, file, "FAIL", "R1", "missing required field: defaultMode"); hasFail = true; }
-
-  // R1 cross-field: defaultMode in validModes
+  // R1a (FAIL) -- defaultMode-in-validModes consistency (real bug if violated)
   if (f.validModes && f.defaultMode && !f.validModes.includes(f.defaultMode)) {
-    emit(folder, file, "FAIL", "R1",
+    emit(folder, file, "FAIL", "R1a",
       `defaultMode "${f.defaultMode}" is not in validModes [${f.validModes.join(", ")}]`);
     hasFail = true;
   }
 
-  // R2 -- chocoPackage required when validModes contains "choco"
+  // R1b (FAIL) -- validModes shape sanity
+  if (cfg.validModes !== undefined) {
+    const isArray = Array.isArray(cfg.validModes);
+    if (!isArray) {
+      emit(folder, file, "FAIL", "R1b", `validModes must be an array, got ${typeof cfg.validModes}`);
+      hasFail = true;
+    } else if (cfg.validModes.length === 0) {
+      emit(folder, file, "FAIL", "R1b", `validModes is an empty array`);
+      hasFail = true;
+    } else if (!cfg.validModes.every((m) => typeof m === "string" && m.trim().length > 0)) {
+      emit(folder, file, "FAIL", "R1b", `validModes contains non-string or empty entries`);
+      hasFail = true;
+    }
+  }
+
+  // R1c (WARN) -- name + desc are RECOMMENDED but not required (advisory)
+  if (!f.name) {
+    emit(folder, file, "WARN", "R1c", "no name / label found at top-level or in any 1-deep feature block");
+    hasWarn = true;
+  }
+  if (!f.desc) {
+    emit(folder, file, "WARN", "R1c", "no desc / description found at top-level or in any 1-deep feature block");
+    hasWarn = true;
+  }
+
+  // R2 (FAIL) -- chocoPackage required when validModes contains "choco"
   if (f.validModes && f.validModes.includes("choco") && !f.chocoPackage) {
     emit(folder, file, "FAIL", "R2",
-      `validModes contains "choco" but chocoPackage / chocoPackageName is not set`);
+      `validModes contains "choco" but no chocoPackage / chocoPackageName found at top-level or 1-deep`);
     hasFail = true;
   }
 
-  // R3 -- quality
-  if (f.name && f.name.trim().length < 3) {
+  // R3 (WARN) -- quality
+  if (f.name && f.name.trim().length > 0 && f.name.trim().length < 3) {
     emit(folder, file, "WARN", "R3", `name "${f.name}" is shorter than 3 characters`);
     hasWarn = true;
   }
-  if (isPlaceholder(f.name) && f.name !== "") {
+  if (f.name && isPlaceholder(f.name)) {
     emit(folder, file, "WARN", "R3", `name is a placeholder value: "${f.name}"`);
     hasWarn = true;
   }
-  if (isPlaceholder(f.desc) && f.desc !== "") {
+  if (f.desc && isPlaceholder(f.desc)) {
     emit(folder, file, "WARN", "R3", `desc is a placeholder value: "${f.desc}"`);
     hasWarn = true;
   }
 
-  // R4 -- unknown top-level keys
+  // R4 (WARN) -- unknown TOP-LEVEL SCALAR keys only.
+  // Object groups are tolerated (project convention -- e.g. "phpmyadmin",
+  // "tweaks", "editions"). Scalar keys like "alwaysUpgradeToLatest" or
+  // "installMethod" are flagged because they often indicate dead config.
   for (const key of Object.keys(cfg)) {
     if (key.startsWith("_")) continue;
     if (INSTALLER_ALLOWED_KEYS.has(key)) continue;
 
-    // Tolerate 1-deep feature blocks if their value is an object
-    // (e.g. "phpmyadmin", "tweaks", "editions" -- already in allowed list, but
-    // each script may legit add one or two more). We WARN once with the key name.
     const v = cfg[key];
     const isObjectGroup = typeof v === "object" && v !== null && !Array.isArray(v);
-    const note = isObjectGroup ? " (feature group?)" : "";
-    emit(folder, file, "WARN", "R4", `unknown top-level key: "${key}"${note}`);
+    if (isObjectGroup) continue; // feature blocks are fine
+
+    emit(folder, file, "WARN", "R4", `unknown top-level scalar key: "${key}"`);
     hasWarn = true;
   }
 
