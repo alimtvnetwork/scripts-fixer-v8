@@ -307,11 +307,28 @@ of being thrown straight into "Install All Dev Tools".
 | `C:\Windows\System32` (protected)    | `C:\Users\X\scripts-fixer` (FB)   |
 | `C:\` (drive root)                   | `C:\Users\X\scripts-fixer` (FB)   |
 
-### Bash status
+### Bash mirror (install.sh, v0.38.1+)
 
-`install.sh` does NOT yet implement CWD-aware target resolution — it still
-uses `$HOME/scripts-fixer` unconditionally. Tracked as a follow-up in
-`.lovable/plan.md`.
+`install.sh` mirrors the same 4-step decision tree:
+
+| # | Condition                                          | Target                          | Reason tag        |
+|---|----------------------------------------------------|---------------------------------|-------------------|
+| 1 | `basename "$PWD"` equals `scripts-fixer`           | `$PWD` itself                   | `cwd-is-target`   |
+| 2 | `$PWD/scripts-fixer` exists as a directory         | `$PWD/scripts-fixer`            | `cwd-has-sibling` |
+| 3 | `test_cwd_is_safe "$PWD"` returns 0                | `$PWD/scripts-fixer`            | `cwd-safe`        |
+| 4 | (otherwise)                                        | `$HOME/scripts-fixer`           | `fallback-home`   |
+
+`test_cwd_is_safe` rejects:
+
+- `/` (filesystem root)
+- Linux/macOS system paths: `/bin`, `/sbin`, `/usr`, `/etc`, `/var`, `/boot`,
+  `/sys`, `/proc`, `/System`, `/Library`, `/Applications` (and any subpaths)
+- Any path that fails a `touch <path>/.scripts-fixer-write-probe.$$` write-probe
+
+Bash also honours `--dry-run` (mirrors PowerShell `-DryRun`) and emits the same
+`[DRYRUN] <action>  (skipped)` lines for every mutating step.
+
+Final action: `pwsh ./run.ps1` (no `-d`), same as PowerShell.
 
 ---
 
