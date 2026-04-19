@@ -9,7 +9,7 @@
 #  Version check: -Version (shows current and latest, no install)
 # --------------------------------------------------------------------------
 & {
-    param([switch]$NoUpgrade, [switch]$Version)
+    param([switch]$NoUpgrade, [switch]$Version, [switch]$DryRun)
 
     $ErrorActionPreference = "Stop"
 
@@ -30,6 +30,9 @@
 
     Write-Host ""
     Write-Host "  Scripts Fixer -- Bootstrap Installer (v$current)" -ForegroundColor Cyan
+    if ($DryRun) {
+        Write-Host "  [DRYRUN] Dry-run mode ON -- nothing will be cloned, removed, copied, or executed." -ForegroundColor Magenta
+    }
     Write-Host ""
 
     # ----- Version check mode (discover + report, no clone) ----------------
@@ -169,9 +172,14 @@
 
     # ----- Helper: invoke git cleanly (silences stderr-as-error noise) -----
     function Invoke-GitClone {
-        param([string]$RepoUrl, [string]$TargetPath)
+        param([string]$RepoUrl, [string]$TargetPath, [bool]$IsDryRun)
         Write-Host "  [GIT] Cloning from : $RepoUrl" -ForegroundColor Cyan
         Write-Host "  [GIT] Cloning into : $TargetPath" -ForegroundColor Cyan
+        if ($IsDryRun) {
+            Write-Host "  [DRYRUN] git clone --quiet $RepoUrl $TargetPath  (skipped)" -ForegroundColor Magenta
+            # Simulate successful clone so downstream flow logs the rest of the path
+            return [pscustomobject]@{ ExitCode = 0; StdOut = ''; StdErr = ''; DryRun = $true }
+        }
         $errFile = [System.IO.Path]::GetTempFileName()
         try {
             # Redirect stderr to file so PowerShell does NOT raise NativeCommandError
@@ -179,7 +187,7 @@
             $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
             $exit = $LASTEXITCODE
             $stderr = if (Test-Path $errFile) { Get-Content $errFile -Raw } else { "" }
-            return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr }
+            return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr; DryRun = $false }
         } finally {
             Remove-Item $errFile -Force -ErrorAction SilentlyContinue
         }
@@ -187,8 +195,12 @@
 
     # ----- Helper: safe remove with read-only attribute clearing -----------
     function Remove-FolderSafe {
-        param([string]$Path)
+        param([string]$Path, [bool]$IsDryRun)
         if (-not (Test-Path $Path)) { return $true }
+        if ($IsDryRun) {
+            Write-Host "  [DRYRUN] Would remove folder: $Path  (skipped)" -ForegroundColor Magenta
+            return $true
+        }
         try {
             Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue |
                 ForEach-Object { try { $_.Attributes = 'Normal' } catch {} }
@@ -223,16 +235,24 @@
     if ($isInsideTarget) {
         $parent = Split-Path $cwd -Parent
         Write-Host "  [CD] Stepping out to parent  : $parent" -ForegroundColor Yellow
-        Set-Location $parent
+        if ($DryRun) {
+            Write-Host "  [DRYRUN] Set-Location $parent  (skipped)" -ForegroundColor Magenta
+        } else {
+            Set-Location $parent
+        }
     }
 
     # ----- Try to remove existing target folder ----------------------------
     $removed = $true
     if (Test-Path $folder) {
         Write-Host "  [CLEAN] Removing existing folder: $folder" -ForegroundColor Yellow
-        $removed = Remove-FolderSafe -Path $folder
+        $removed = Remove-FolderSafe -Path $folder -IsDryRun:$DryRun
         if ($removed) {
-            Write-Host "  [OK] Folder removed." -ForegroundColor Green
+            if ($DryRun) {
+                Write-Host "  [DRYRUN] (would have removed) Folder: $folder" -ForegroundColor Magenta
+            } else {
+                Write-Host "  [OK] Folder removed." -ForegroundColor Green
+            }
         } else {
             Write-Host "  [INFO] Direct removal failed -- will use TEMP staging fallback." -ForegroundColor Yellow
         }
@@ -242,19 +262,21 @@
     if ($removed) {
         Write-Host ""
         Write-Host "  [>>] Direct clone into target..." -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder
-        if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
-            Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
-            Write-Host "          Repo   : $repo" -ForegroundColor Red
-            Write-Host "          Target : $folder" -ForegroundColor Red
-            if ($r.StdErr) {
-                Write-Host "          Git stderr:" -ForegroundColor DarkGray
-                ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder -IsDryRun:$DryRun
+        if (-not $DryRun) {
+            if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
+                Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
+                Write-Host "          Repo   : $repo" -ForegroundColor Red
+                Write-Host "          Target : $folder" -ForegroundColor Red
+                if ($r.StdErr) {
+                    Write-Host "          Git stderr:" -ForegroundColor DarkGray
+                    ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+                }
+                Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
+                return
             }
-            Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
-            return
+            Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
         }
-        Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
     }
     else {
         # ----- TEMP staging fallback (remove failed -- folder is locked) ---
@@ -262,45 +284,59 @@
         $tempDir = Join-Path $env:TEMP "scripts-fixer-bootstrap-$stamp"
         Write-Host ""
         Write-Host "  [TEMP] Staging clone path  : $tempDir" -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir
-        if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
-            Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red
-            Write-Host "          Repo   : $repo" -ForegroundColor Red
-            Write-Host "          Target : $tempDir" -ForegroundColor Red
-            if ($r.StdErr) {
-                Write-Host "          Git stderr:" -ForegroundColor DarkGray
-                ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir -IsDryRun:$DryRun
+        if (-not $DryRun) {
+            if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
+                Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red
+                Write-Host "          Repo   : $repo" -ForegroundColor Red
+                Write-Host "          Target : $tempDir" -ForegroundColor Red
+                if ($r.StdErr) {
+                    Write-Host "          Git stderr:" -ForegroundColor DarkGray
+                    ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+                }
+                return
             }
-            return
+            Write-Host "  [OK] Temp clone complete." -ForegroundColor Green
         }
-        Write-Host "  [OK] Temp clone complete." -ForegroundColor Green
 
         # Copy contents over the locked folder (overwrite)
         Write-Host "  [COPY] From : $tempDir" -ForegroundColor Yellow
         Write-Host "  [COPY] To   : $folder" -ForegroundColor Yellow
-        if (-not (Test-Path $folder)) {
-            New-Item -ItemType Directory -Path $folder -Force | Out-Null
-        }
-        try {
-            Copy-Item -Path (Join-Path $tempDir '*') -Destination $folder -Recurse -Force -ErrorAction Stop
-            Write-Host "  [OK] Files copied into $folder" -ForegroundColor Green
-        } catch {
-            Write-Host "  [ERROR] Copy from temp failed." -ForegroundColor Red
-            Write-Host "          Source : $tempDir" -ForegroundColor Red
-            Write-Host "          Target : $folder" -ForegroundColor Red
-            Write-Host "          Reason : $_" -ForegroundColor Red
-            Write-Host "          Files remain in temp -- copy manually if needed." -ForegroundColor DarkGray
-            return
-        }
+        if ($DryRun) {
+            Write-Host "  [DRYRUN] Copy-Item -Recurse -Force from $tempDir to $folder  (skipped)" -ForegroundColor Magenta
+        } else {
+            if (-not (Test-Path $folder)) {
+                New-Item -ItemType Directory -Path $folder -Force | Out-Null
+            }
+            try {
+                Copy-Item -Path (Join-Path $tempDir '*') -Destination $folder -Recurse -Force -ErrorAction Stop
+                Write-Host "  [OK] Files copied into $folder" -ForegroundColor Green
+            } catch {
+                Write-Host "  [ERROR] Copy from temp failed." -ForegroundColor Red
+                Write-Host "          Source : $tempDir" -ForegroundColor Red
+                Write-Host "          Target : $folder" -ForegroundColor Red
+                Write-Host "          Reason : $_" -ForegroundColor Red
+                Write-Host "          Files remain in temp -- copy manually if needed." -ForegroundColor DarkGray
+                return
+            }
 
-        # Best-effort cleanup of temp staging
-        Remove-FolderSafe -Path $tempDir | Out-Null
-        Write-Host "  [CLEAN] Temp staging removed." -ForegroundColor DarkGray
+            # Best-effort cleanup of temp staging
+            Remove-FolderSafe -Path $tempDir -IsDryRun:$false | Out-Null
+            Write-Host "  [CLEAN] Temp staging removed." -ForegroundColor DarkGray
+        }
     }
 
     # ----- Launch interactive menu -----------------------------------------
     Write-Host ""
     Write-Host "  [CD] Entering              : $folder" -ForegroundColor Cyan
+    if ($DryRun) {
+        Write-Host "  [DRYRUN] Set-Location $folder  (skipped)" -ForegroundColor Magenta
+        Write-Host "  [DRYRUN] & .\run.ps1 -d  (skipped)" -ForegroundColor Magenta
+        Write-Host ""
+        Write-Host "  [DRYRUN] Dry-run complete. Re-run without -DryRun to actually install." -ForegroundColor Magenta
+        Write-Host ""
+        return
+    }
     Set-Location $folder
     Write-Host "  Launching interactive menu..." -ForegroundColor Cyan
     Write-Host ""

@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.37.1] -- 2026-04-19
+
+### Added
+
+- **`-DryRun` flag for `install.ps1`** -- prints every `[LOCATE]` / `[CD]` / `[CLEAN]` / `[GIT]` / `[TEMP]` / `[COPY]` step the bootstrap **would** take, without actually cloning, removing, copying, or executing `run.ps1`. Useful for previewing the self-relocation flow before committing to it on a sensitive folder.
+  - Banner shows `[DRYRUN] Dry-run mode ON -- nothing will be cloned, removed, copied, or executed.` (magenta) so the mode is visually unmistakable.
+  - Skipped operations are tagged with `[DRYRUN] <action>  (skipped)` so the user sees exactly which native command was avoided (e.g. `[DRYRUN] git clone --quiet <url> <target>  (skipped)`, `[DRYRUN] Would remove folder: <path>  (skipped)`, `[DRYRUN] Copy-Item -Recurse -Force from <src> to <dst>  (skipped)`).
+  - Both branches of the relocation flow (direct clone AND temp-staging fallback) honour `-DryRun`. Final `cd` + `& .\run.ps1 -d` are also skipped, with a closing `[DRYRUN] Dry-run complete. Re-run without -DryRun to actually install.` line.
+  - Usage: `irm .../install.ps1 | iex -DryRun` or piped: `& ([scriptblock]::Create((irm .../install.ps1))) -DryRun`
+  - `Invoke-GitClone` and `Remove-FolderSafe` helpers gained an `-IsDryRun` switch so the gating is centralized -- no logic forks at every call-site.
+
+### Documentation
+
+- `spec/install-bootstrap/readme.md` CLI control table gained a `-DryRun` row.
+
 ## [v0.37.0] -- 2026-04-19
 
 ### Fixed
