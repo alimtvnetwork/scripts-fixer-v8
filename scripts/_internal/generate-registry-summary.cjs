@@ -116,7 +116,7 @@ const lines = [];
 lines.push('# Script Registry Summary');
 lines.push('');
 lines.push(`> Auto-generated report of all ${totalScripts} registered scripts, ${totalKeywords} keywords, and ${totalModeEntries} mode entries.`);
-lines.push('> Regenerate with: `node scripts/_internal/generate-registry-summary.js`');
+lines.push('> Regenerate with: `node scripts/_internal/generate-registry-summary.cjs`');
 lines.push('');
 lines.push('## Overview');
 lines.push('');
