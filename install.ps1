@@ -167,43 +167,142 @@
         return
     }
 
-    # ----- Always wipe & re-clone (guarantees a clean, up-to-date checkout) -
-    $hasFolder = Test-Path $folder
-    if ($hasFolder) {
-        Write-Host "  [CLEAN] Existing folder found at $folder -- removing for fresh clone..." -ForegroundColor Yellow
+    # ----- Helper: invoke git cleanly (silences stderr-as-error noise) -----
+    function Invoke-GitClone {
+        param([string]$RepoUrl, [string]$TargetPath)
+        Write-Host "  [GIT] Cloning from : $RepoUrl" -ForegroundColor Cyan
+        Write-Host "  [GIT] Cloning into : $TargetPath" -ForegroundColor Cyan
+        $errFile = [System.IO.Path]::GetTempFileName()
         try {
-            # Clear read-only bits (git pack files often are) before removal
-            Get-ChildItem -Path $folder -Recurse -Force -ErrorAction SilentlyContinue |
-                ForEach-Object { try { $_.Attributes = 'Normal' } catch {} }
-            Remove-Item -Path $folder -Recurse -Force -ErrorAction Stop
-            Write-Host "  [OK] Removed previous folder." -ForegroundColor Green
-        } catch {
-            Write-Host "  [ERROR] Failed to remove existing folder: $folder" -ForegroundColor Red
-            Write-Host "          Reason: $_" -ForegroundColor Red
-            Write-Host "          Close any open file/terminal in that folder and re-run." -ForegroundColor DarkGray
-            return
+            # Redirect stderr to file so PowerShell does NOT raise NativeCommandError
+            # on git's normal progress messages. Capture stdout for diagnostics.
+            $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
+            $exit = $LASTEXITCODE
+            $stderr = if (Test-Path $errFile) { Get-Content $errFile -Raw } else { "" }
+            return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr }
+        } finally {
+            Remove-Item $errFile -Force -ErrorAction SilentlyContinue
         }
     }
 
-    Write-Host "  [>>] Cloning fresh into $folder ..." -ForegroundColor Yellow
-    $cloneOutput = & git clone $repo $folder 2>&1
-    $cloneExit = $LASTEXITCODE
-    if ($cloneExit -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
-        Write-Host "  [ERROR] Clone failed (exit $cloneExit) for repo: $repo" -ForegroundColor Red
-        Write-Host "          Target folder: $folder" -ForegroundColor Red
-        if ($cloneOutput) {
-            Write-Host "          Git output:" -ForegroundColor DarkGray
-            $cloneOutput | ForEach-Object { Write-Host "            $_" -ForegroundColor DarkGray }
+    # ----- Helper: safe remove with read-only attribute clearing -----------
+    function Remove-FolderSafe {
+        param([string]$Path)
+        if (-not (Test-Path $Path)) { return $true }
+        try {
+            Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue |
+                ForEach-Object { try { $_.Attributes = 'Normal' } catch {} }
+            Remove-Item -Path $Path -Recurse -Force -ErrorAction Stop
+            return $true
+        } catch {
+            Write-Host "  [WARN] Could not remove $Path" -ForegroundColor Yellow
+            Write-Host "         Reason: $_" -ForegroundColor DarkGray
+            return $false
         }
-        Write-Host "          Check that the repo exists and your network is reachable." -ForegroundColor DarkGray
-        return
     }
-    Write-Host "  [OK] Cloned successfully." -ForegroundColor Green
+
+    # ----- Detect self-location (CWD is target OR sibling 'scripts-fixer') -
+    $cwd            = (Get-Location).Path
+    $cwdLeaf        = Split-Path $cwd -Leaf
+    $isInsideTarget = ($cwdLeaf -ieq 'scripts-fixer')
+    $hasSibling     = Test-Path (Join-Path $cwd 'scripts-fixer')
+    $needsRelocate  = $isInsideTarget -or $hasSibling
+
+    Write-Host ""
+    Write-Host "  [LOCATE] Current directory : $cwd" -ForegroundColor DarkGray
+    Write-Host "  [LOCATE] Target folder     : $folder" -ForegroundColor DarkGray
+    if ($isInsideTarget) {
+        Write-Host "  [LOCATE] You are INSIDE a 'scripts-fixer' folder -- using relocation flow." -ForegroundColor Yellow
+    } elseif ($hasSibling) {
+        Write-Host "  [LOCATE] A 'scripts-fixer' folder exists in CWD -- using relocation flow." -ForegroundColor Yellow
+    } else {
+        Write-Host "  [LOCATE] No conflict detected -- using direct clone flow." -ForegroundColor DarkGray
+    }
+
+    # ----- Step out of folder if we're sitting inside it -------------------
+    if ($isInsideTarget) {
+        $parent = Split-Path $cwd -Parent
+        Write-Host "  [CD] Stepping out to parent  : $parent" -ForegroundColor Yellow
+        Set-Location $parent
+    }
+
+    # ----- Try to remove existing target folder ----------------------------
+    $removed = $true
+    if (Test-Path $folder) {
+        Write-Host "  [CLEAN] Removing existing folder: $folder" -ForegroundColor Yellow
+        $removed = Remove-FolderSafe -Path $folder
+        if ($removed) {
+            Write-Host "  [OK] Folder removed." -ForegroundColor Green
+        } else {
+            Write-Host "  [INFO] Direct removal failed -- will use TEMP staging fallback." -ForegroundColor Yellow
+        }
+    }
+
+    # ----- Direct clone path (no conflict OR remove succeeded) -------------
+    if ($removed) {
+        Write-Host ""
+        Write-Host "  [>>] Direct clone into target..." -ForegroundColor Yellow
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder
+        if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
+            Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
+            Write-Host "          Repo   : $repo" -ForegroundColor Red
+            Write-Host "          Target : $folder" -ForegroundColor Red
+            if ($r.StdErr) {
+                Write-Host "          Git stderr:" -ForegroundColor DarkGray
+                ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+            }
+            Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
+            return
+        }
+        Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
+    }
+    else {
+        # ----- TEMP staging fallback (remove failed -- folder is locked) ---
+        $stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
+        $tempDir = Join-Path $env:TEMP "scripts-fixer-bootstrap-$stamp"
+        Write-Host ""
+        Write-Host "  [TEMP] Staging clone path  : $tempDir" -ForegroundColor Yellow
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir
+        if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
+            Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red
+            Write-Host "          Repo   : $repo" -ForegroundColor Red
+            Write-Host "          Target : $tempDir" -ForegroundColor Red
+            if ($r.StdErr) {
+                Write-Host "          Git stderr:" -ForegroundColor DarkGray
+                ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+            }
+            return
+        }
+        Write-Host "  [OK] Temp clone complete." -ForegroundColor Green
+
+        # Copy contents over the locked folder (overwrite)
+        Write-Host "  [COPY] From : $tempDir" -ForegroundColor Yellow
+        Write-Host "  [COPY] To   : $folder" -ForegroundColor Yellow
+        if (-not (Test-Path $folder)) {
+            New-Item -ItemType Directory -Path $folder -Force | Out-Null
+        }
+        try {
+            Copy-Item -Path (Join-Path $tempDir '*') -Destination $folder -Recurse -Force -ErrorAction Stop
+            Write-Host "  [OK] Files copied into $folder" -ForegroundColor Green
+        } catch {
+            Write-Host "  [ERROR] Copy from temp failed." -ForegroundColor Red
+            Write-Host "          Source : $tempDir" -ForegroundColor Red
+            Write-Host "          Target : $folder" -ForegroundColor Red
+            Write-Host "          Reason : $_" -ForegroundColor Red
+            Write-Host "          Files remain in temp -- copy manually if needed." -ForegroundColor DarkGray
+            return
+        }
+
+        # Best-effort cleanup of temp staging
+        Remove-FolderSafe -Path $tempDir | Out-Null
+        Write-Host "  [CLEAN] Temp staging removed." -ForegroundColor DarkGray
+    }
 
     # ----- Launch interactive menu -----------------------------------------
     Write-Host ""
+    Write-Host "  [CD] Entering              : $folder" -ForegroundColor Cyan
+    Set-Location $folder
     Write-Host "  Launching interactive menu..." -ForegroundColor Cyan
     Write-Host ""
-    Set-Location $folder
     & .\run.ps1 -d
 } @args
