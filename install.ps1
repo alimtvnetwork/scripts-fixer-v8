@@ -17,8 +17,10 @@
     $owner    = "alimtvnetwork"
     $baseName = "scripts-fixer"
     $current  = 8   # <-- bump this when this file is copied into a new -vN repo
-    $folder   = Join-Path $env:USERPROFILE "scripts-fixer"
     $repo     = "https://github.com/$owner/$baseName-v$current.git"
+    # NOTE: $folder is resolved later -- it is CWD-aware (see Resolve-TargetFolder).
+    # Fallback only kicks in when CWD is a protected/system directory.
+    $fallbackFolder = Join-Path $env:USERPROFILE "scripts-fixer"
 
     $probeMax = 30
     if ($env:SCRIPTS_FIXER_PROBE_MAX) {
@@ -201,38 +203,99 @@
         }
     }
 
-    # ----- Detect self-location (CWD is target OR sibling 'scripts-fixer') -
+    # ----- Helper: resolve target folder (CWD-aware with safe fallback) ----
+    # Decision tree:
+    #   1. If CWD's leaf folder name == 'scripts-fixer' -> target = CWD itself
+    #      (we are inside an existing checkout; clone back into the same path).
+    #   2. Else if CWD contains a 'scripts-fixer' subfolder -> target = that subfolder.
+    #   3. Else if CWD is "safe" (writable, not a protected/system dir) -> target = <CWD>\scripts-fixer.
+    #   4. Else -> $env:USERPROFILE\scripts-fixer (fallback).
+    function Test-CwdIsSafe {
+        param([string]$Path)
+        if ([string]::IsNullOrWhiteSpace($Path)) { return $false }
+        $protected = @(
+            "$env:WINDIR",
+            "$env:WINDIR\System32",
+            "$env:WINDIR\SysWOW64",
+            "$env:ProgramFiles",
+            "${env:ProgramFiles(x86)}",
+            "$env:ProgramData"
+        ) | Where-Object { $_ }
+        foreach ($p in $protected) {
+            if ($Path -ieq $p) { return $false }
+            if ($Path.StartsWith($p + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) { return $false }
+        }
+        # Refuse drive root (e.g. "C:\") -- too noisy to drop a repo there
+        try {
+            $root = [System.IO.Path]::GetPathRoot($Path).TrimEnd('\','/')
+            $trimmed = $Path.TrimEnd('\','/')
+            if ($trimmed -ieq $root) { return $false }
+        } catch {}
+        # Quick writability probe
+        try {
+            $probe = Join-Path $Path (".sf-write-probe-" + [guid]::NewGuid().ToString('N'))
+            New-Item -ItemType File -Path $probe -Force -ErrorAction Stop | Out-Null
+            Remove-Item $probe -Force -ErrorAction SilentlyContinue
+            return $true
+        } catch {
+            return $false
+        }
+    }
+
+    function Resolve-TargetFolder {
+        param([string]$Cwd, [string]$Fallback)
+        $leaf = Split-Path $Cwd -Leaf
+        if ($leaf -ieq 'scripts-fixer') {
+            return [pscustomobject]@{ Path = $Cwd; Reason = 'cwd-is-target'; IsInside = $true }
+        }
+        $sibling = Join-Path $Cwd 'scripts-fixer'
+        if (Test-Path $sibling) {
+            return [pscustomobject]@{ Path = $sibling; Reason = 'cwd-has-sibling'; IsInside = $false }
+        }
+        if (Test-CwdIsSafe -Path $Cwd) {
+            return [pscustomobject]@{ Path = (Join-Path $Cwd 'scripts-fixer'); Reason = 'cwd-safe'; IsInside = $false }
+        }
+        return [pscustomobject]@{ Path = $Fallback; Reason = 'fallback-userprofile'; IsInside = $false }
+    }
+
+    # ----- Resolve target (CWD-aware) --------------------------------------
     $cwd            = (Get-Location).Path
-    $cwdLeaf        = Split-Path $cwd -Leaf
-    $isInsideTarget = ($cwdLeaf -ieq 'scripts-fixer')
-    $hasSibling     = Test-Path (Join-Path $cwd 'scripts-fixer')
-    $needsRelocate  = $isInsideTarget -or $hasSibling
+    $resolved       = Resolve-TargetFolder -Cwd $cwd -Fallback $fallbackFolder
+    $folder         = $resolved.Path
+    $isInsideTarget = $resolved.IsInside
 
     Write-Host ""
     Write-Host "  [LOCATE] Current directory : $cwd" -ForegroundColor DarkGray
     Write-Host "  [LOCATE] Target folder     : $folder" -ForegroundColor DarkGray
-    if ($isInsideTarget) {
-        Write-Host "  [LOCATE] You are INSIDE a 'scripts-fixer' folder -- using relocation flow." -ForegroundColor Yellow
-    } elseif ($hasSibling) {
-        Write-Host "  [LOCATE] A 'scripts-fixer' folder exists in CWD -- using relocation flow." -ForegroundColor Yellow
-    } else {
-        Write-Host "  [LOCATE] No conflict detected -- using direct clone flow." -ForegroundColor DarkGray
+    switch ($resolved.Reason) {
+        'cwd-is-target'        { Write-Host "  [LOCATE] You are INSIDE a 'scripts-fixer' folder -- cloning back into the same path." -ForegroundColor Yellow }
+        'cwd-has-sibling'      { Write-Host "  [LOCATE] A 'scripts-fixer' subfolder exists in CWD -- cloning into it." -ForegroundColor Yellow }
+        'cwd-safe'             { Write-Host "  [LOCATE] CWD is writable -- cloning into <CWD>\scripts-fixer." -ForegroundColor DarkGray }
+        'fallback-userprofile' { Write-Host "  [LOCATE] CWD is a protected/system path -- falling back to USERPROFILE." -ForegroundColor Yellow }
     }
 
-    # ----- Step out of folder if we're sitting inside it -------------------
+    # ----- Step out of folder if we're sitting inside the target -----------
     if ($isInsideTarget) {
         $parent = Split-Path $cwd -Parent
         Write-Host "  [CD] Stepping out to parent  : $parent" -ForegroundColor Yellow
-        Set-Location $parent
+        if ($DryRun) {
+            Write-Host "  [DRYRUN] Set-Location $parent  (skipped)" -ForegroundColor Magenta
+        } else {
+            Set-Location $parent
+        }
     }
 
     # ----- Try to remove existing target folder ----------------------------
     $removed = $true
     if (Test-Path $folder) {
         Write-Host "  [CLEAN] Removing existing folder: $folder" -ForegroundColor Yellow
-        $removed = Remove-FolderSafe -Path $folder
+        $removed = Remove-FolderSafe -Path $folder -IsDryRun:$DryRun
         if ($removed) {
-            Write-Host "  [OK] Folder removed." -ForegroundColor Green
+            if ($DryRun) {
+                Write-Host "  [DRYRUN] (would have removed) Folder: $folder" -ForegroundColor Magenta
+            } else {
+                Write-Host "  [OK] Folder removed." -ForegroundColor Green
+            }
         } else {
             Write-Host "  [INFO] Direct removal failed -- will use TEMP staging fallback." -ForegroundColor Yellow
         }
@@ -242,19 +305,21 @@
     if ($removed) {
         Write-Host ""
         Write-Host "  [>>] Direct clone into target..." -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder
-        if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
-            Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
-            Write-Host "          Repo   : $repo" -ForegroundColor Red
-            Write-Host "          Target : $folder" -ForegroundColor Red
-            if ($r.StdErr) {
-                Write-Host "          Git stderr:" -ForegroundColor DarkGray
-                ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder -IsDryRun:$DryRun
+        if (-not $DryRun) {
+            if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
+                Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
+                Write-Host "          Repo   : $repo" -ForegroundColor Red
+                Write-Host "          Target : $folder" -ForegroundColor Red
+                if ($r.StdErr) {
+                    Write-Host "          Git stderr:" -ForegroundColor DarkGray
+                    ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+                }
+                Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
+                return
             }
-            Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
-            return
+            Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
         }
-        Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
     }
     else {
         # ----- TEMP staging fallback (remove failed -- folder is locked) ---
@@ -262,47 +327,61 @@
         $tempDir = Join-Path $env:TEMP "scripts-fixer-bootstrap-$stamp"
         Write-Host ""
         Write-Host "  [TEMP] Staging clone path  : $tempDir" -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir
-        if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
-            Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red
-            Write-Host "          Repo   : $repo" -ForegroundColor Red
-            Write-Host "          Target : $tempDir" -ForegroundColor Red
-            if ($r.StdErr) {
-                Write-Host "          Git stderr:" -ForegroundColor DarkGray
-                ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir -IsDryRun:$DryRun
+        if (-not $DryRun) {
+            if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
+                Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red
+                Write-Host "          Repo   : $repo" -ForegroundColor Red
+                Write-Host "          Target : $tempDir" -ForegroundColor Red
+                if ($r.StdErr) {
+                    Write-Host "          Git stderr:" -ForegroundColor DarkGray
+                    ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
+                }
+                return
             }
-            return
+            Write-Host "  [OK] Temp clone complete." -ForegroundColor Green
         }
-        Write-Host "  [OK] Temp clone complete." -ForegroundColor Green
 
         # Copy contents over the locked folder (overwrite)
         Write-Host "  [COPY] From : $tempDir" -ForegroundColor Yellow
         Write-Host "  [COPY] To   : $folder" -ForegroundColor Yellow
-        if (-not (Test-Path $folder)) {
-            New-Item -ItemType Directory -Path $folder -Force | Out-Null
-        }
-        try {
-            Copy-Item -Path (Join-Path $tempDir '*') -Destination $folder -Recurse -Force -ErrorAction Stop
-            Write-Host "  [OK] Files copied into $folder" -ForegroundColor Green
-        } catch {
-            Write-Host "  [ERROR] Copy from temp failed." -ForegroundColor Red
-            Write-Host "          Source : $tempDir" -ForegroundColor Red
-            Write-Host "          Target : $folder" -ForegroundColor Red
-            Write-Host "          Reason : $_" -ForegroundColor Red
-            Write-Host "          Files remain in temp -- copy manually if needed." -ForegroundColor DarkGray
-            return
-        }
+        if ($DryRun) {
+            Write-Host "  [DRYRUN] Copy-Item -Recurse -Force from $tempDir to $folder  (skipped)" -ForegroundColor Magenta
+        } else {
+            if (-not (Test-Path $folder)) {
+                New-Item -ItemType Directory -Path $folder -Force | Out-Null
+            }
+            try {
+                Copy-Item -Path (Join-Path $tempDir '*') -Destination $folder -Recurse -Force -ErrorAction Stop
+                Write-Host "  [OK] Files copied into $folder" -ForegroundColor Green
+            } catch {
+                Write-Host "  [ERROR] Copy from temp failed." -ForegroundColor Red
+                Write-Host "          Source : $tempDir" -ForegroundColor Red
+                Write-Host "          Target : $folder" -ForegroundColor Red
+                Write-Host "          Reason : $_" -ForegroundColor Red
+                Write-Host "          Files remain in temp -- copy manually if needed." -ForegroundColor DarkGray
+                return
+            }
 
-        # Best-effort cleanup of temp staging
-        Remove-FolderSafe -Path $tempDir | Out-Null
-        Write-Host "  [CLEAN] Temp staging removed." -ForegroundColor DarkGray
+            # Best-effort cleanup of temp staging
+            Remove-FolderSafe -Path $tempDir -IsDryRun:$false | Out-Null
+            Write-Host "  [CLEAN] Temp staging removed." -ForegroundColor DarkGray
+        }
     }
 
-    # ----- Launch interactive menu -----------------------------------------
+    # ----- Enter folder and launch run.ps1 (no args, user picks) -----------
     Write-Host ""
     Write-Host "  [CD] Entering              : $folder" -ForegroundColor Cyan
+    if ($DryRun) {
+        Write-Host "  [DRYRUN] Set-Location $folder  (skipped)" -ForegroundColor Magenta
+        Write-Host "  [DRYRUN] & .\run.ps1  (skipped)" -ForegroundColor Magenta
+        Write-Host ""
+        Write-Host "  [DRYRUN] Dry-run complete. Re-run without -DryRun to actually install." -ForegroundColor Magenta
+        Write-Host ""
+        return
+    }
     Set-Location $folder
-    Write-Host "  Launching interactive menu..." -ForegroundColor Cyan
+    Write-Host "  [RUN] Launching .\run.ps1 ..." -ForegroundColor Cyan
     Write-Host ""
-    & .\run.ps1 -d
+    & .\run.ps1
 } @args
