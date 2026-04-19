@@ -1,6 +1,6 @@
 # Project Plan -- Dev Tools Setup
 
-## Current Version: v0.38.0
+## Current Version: v0.38.1
 ## Last Updated: 2026-04-19
 
 ---
@@ -12,9 +12,9 @@ _None._
 ## ⏳ Pending / Next Steps
 
 ### Bootstrap follow-ups
-- [ ] Mirror CWD-aware target resolution in `install.sh` (currently still hardcoded to `$HOME/scripts-fixer`)
-- [ ] Mirror `-DryRun` as `--dry-run` in `install.sh`
 - [ ] End-to-end verify install.ps1 from D:\, C:\Users\X, C:\Windows\System32 (fallback), and inside an existing checkout
+- [ ] End-to-end verify install.sh from /tmp, $HOME, /etc (fallback), and inside an existing checkout
+- [ ] Add audit script that runs `install.ps1 -DryRun` + `install.sh --dry-run` across the test matrix
 
 ### Documentation & Quality
 - [ ] Verify `-Version` flag end-to-end on real Windows + Linux shells
