@@ -20,6 +20,32 @@
     "scanPathMissing":   "Scan path not found: {path}",
     "scanNoRepos":       "No .git folders found under '{path}'",
     "scanSummary":       "Added {added} repos, {skipped} already present, scanned {total} .git folders in {seconds}s",
-    "gitMissing":        "git command not found in PATH -- install git first (.\\run.ps1 install git)"
+    "gitMissing":        "git command not found in PATH -- install git first (.\\run.ps1 install git)",
+
+    "listHeader":        "safe.directory audit -- global gitconfig",
+    "listEmpty":         "No safe.directory entries in global gitconfig.",
+    "listWildcard":      "Wildcard '*' is PRESENT (every repo is trusted).",
+    "listNoWildcard":    "Wildcard '*' is NOT present (only listed paths are trusted).",
+    "listSummary":       "Total: {total} unique entries ({wildcard} wildcard + {repos} per-repo, {duplicates} duplicates removed)",
+
+    "removeHeader":      "Removing safe.directory entry from global gitconfig",
+    "removeTarget":      "Target path: {path}",
+    "removeMissingPath": "remove requires a path argument: gsa --remove <path>",
+    "removeNotPresent":  "Path not present in safe.directory list -- nothing to remove: {path}",
+    "removeRemoved":     "Removed {count} matching entry/entries for: {path}",
+    "removeFailed":      "git config --unset-all failed for '{path}': {reason}",
+    "removeSummary":     "Before: {before} entries  -- After: {after} entries  -- Removed: {removed}",
+
+    "pruneHeader":       "Pruning orphaned safe.directory entries (live run)",
+    "pruneHeaderDry":    "Pruning orphaned safe.directory entries (DRY-RUN -- no changes)",
+    "pruneEmpty":        "No safe.directory entries in global gitconfig -- nothing to prune.",
+    "pruneClassify":     "Inspecting {total} entries ({wildcard} wildcard, {repos} per-repo) -- wildcard never pruned.",
+    "pruneNoOrphans":    "All per-repo entries point to existing folders -- 0 orphans.",
+    "pruneOrphansList":  "Orphans to remove ({count}):",
+    "pruneOrphansListDry": "Would remove ({count} orphan(s)):",
+    "pruneDryRunNote":   "DRY-RUN: no entries removed. Re-run without --dry-run to apply.",
+    "pruneEntryFailed":  "Failed to unset '{path}': {reason}",
+    "pruneCountDrift":   "Post-prune count drift detected: expected {expected} entries, found {actual}.",
+    "pruneSummary":      "Before: {before}  -- After: {after}  -- Orphans: {orphans}  -- Alive: {alive}"
   }
 }
