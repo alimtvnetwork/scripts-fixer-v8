@@ -2,6 +2,38 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.39.6] -- 2026-04-19
+
+### Added (`os clean` -- locked-file resilience + cascading temp-clean + choco cache cleanup)
+
+- **New subcommand `os temp-clean`** (`scripts/os/helpers/temp-clean.ps1`) -- standalone temp-only sweep, faster alternative to full `os clean` when you only want temp dirs gone (no event logs, no Windows Update cache, no PSReadLine wipe). Targets:
+  - `$env:TEMP` (current user)
+  - `C:\Windows\Temp` (system)
+  - `$env:LOCALAPPDATA\Temp` (skipped if same path as `$env:TEMP` to avoid double-sweep)
+  - `C:\Users\<each>\AppData\Local\Temp` -- enumerates all user profiles, skips `Public`/`Default`/`WDAGUtilityAccount` and the current user (already swept via `$env:TEMP`)
+  - `$env:TEMP\chocolatey` (suppress with `-NoChoco`)
+- **Locked-file resilience** -- every `Remove-Item` failure is caught (not crashed on), classified into a human-readable reason ("in use by another process", "access denied (locked or protected)", "sharing violation (open handle)", "vanished mid-sweep"), accumulated, and reported at the end in a dedicated **`[ LOCKED FILES ]`** section. CODE RED: every locked file logs the exact path + reason in real time AND in the final summary. De-duped by path. Configurable display cap (`lockedFilesMaxReport`, default 50) -- the rest go to the log file.
+- **`os clean` cascades into `os temp-clean`** as Step 2 (option A: single source of truth). Sub-steps are renumbered `2.1`, `2.2`, ... in the summary table so they don't collide with the outer Steps 1/3/4/5/6. Suppress with `-NoTempCascade`.
+- **Chocolatey cache cleanup** as Step 3 (`scripts/os/helpers/choco-clean.ps1`) -- distinguishes **cache artifacts** (deleted) from the **live install** (left alone):
+  - DELETES: `C:\ProgramData\chocolatey\lib-bad\*`, `\lib-bkp\*`, `\.chocolatey\*\.backup`, `\lib\*\*.nupkg` (cached package files), `%TEMP%\chocolatey\*`
+  - LEAVES ALONE: `\bin`, `\lib\<pkg>\tools` (executables), `\config`, `\logs` -- so installed apps (VS Code, Git, etc.) keep working
+  - Runs `choco-cleaner` (community extension) if present; falls back to manual sweep otherwise. Suppress with `-NoChoco`.
+- **Expanded help** in `scripts/os/run.ps1` -- `.\run.ps1 os` and `.\run.ps1 os help` now print full per-action descriptions (what `clean` actually wipes, the cascade behavior, locked-file handling, the new `temp-clean` subcommand, all flags).
+- **Summary table** redesigned: extra `locked` column per row, `TOTAL` row with items + freed (MB / GB) + total locked count.
+
+### Changed
+
+- **`scripts/os/config.json`** -- new `tempClean.*`, `choco.*`, and `clean.{tempCleanCascade, clearChocoCache, lockedFilesMaxReport}` keys. `includeWindowsTemp` is now `true` by default since the temp-clean cascade always sweeps it (the legacy `-IncludeWindowsTemp` flag is still accepted on `clean` for back-compat).
+- **`scripts/os/log-messages.json`** -- added `clean.{lockedHeader, lockedRow, lockedTruncated, cascadingTempClean, chocoCleanerFound, chocoCleanerNotFound, chocoCleanerFailed, chocoCleanStart, chocoNotInstalled}`, full `tempClean.*` block, new `lock` status icon.
+- **`scripts/os/run.ps1`** dispatcher routes `temp-clean` / `tempclean` / `temp` to the new helper.
+
+### Licensing
+
+- **`LICENSE`** -- replaced previous content with standard **MIT License** text. `Copyright (c) 2026 Alim Ul Karim`.
+- **`readme.md`** -- new "License" section with MIT badge + summary near the bottom.
+- **`package.json`** -- added `"license": "MIT"` field.
+
+
 ## [v0.39.5] -- 2026-04-19
 
 ### Changed (script 50 -- OneNote fallback URL refresh)
