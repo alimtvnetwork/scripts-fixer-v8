@@ -9,7 +9,7 @@
 #  Version check: -Version (shows current and latest, no install)
 # --------------------------------------------------------------------------
 & {
-    param([switch]$NoUpgrade, [switch]$Version, [switch]$DryRun)
+    param([switch]$NoUpgrade, [switch]$Version)
 
     $ErrorActionPreference = "Stop"
 
@@ -17,8 +17,10 @@
     $owner    = "alimtvnetwork"
     $baseName = "scripts-fixer"
     $current  = 8   # <-- bump this when this file is copied into a new -vN repo
-    $folder   = Join-Path $env:USERPROFILE "scripts-fixer"
     $repo     = "https://github.com/$owner/$baseName-v$current.git"
+    # NOTE: $folder is resolved later -- it is CWD-aware (see Resolve-TargetFolder).
+    # Fallback only kicks in when CWD is a protected/system directory.
+    $fallbackFolder = Join-Path $env:USERPROFILE "scripts-fixer"
 
     $probeMax = 30
     if ($env:SCRIPTS_FIXER_PROBE_MAX) {
@@ -30,9 +32,6 @@
 
     Write-Host ""
     Write-Host "  Scripts Fixer -- Bootstrap Installer (v$current)" -ForegroundColor Cyan
-    if ($DryRun) {
-        Write-Host "  [DRYRUN] Dry-run mode ON -- nothing will be cloned, removed, copied, or executed." -ForegroundColor Magenta
-    }
     Write-Host ""
 
     # ----- Version check mode (discover + report, no clone) ----------------
@@ -172,14 +171,9 @@
 
     # ----- Helper: invoke git cleanly (silences stderr-as-error noise) -----
     function Invoke-GitClone {
-        param([string]$RepoUrl, [string]$TargetPath, [bool]$IsDryRun)
+        param([string]$RepoUrl, [string]$TargetPath)
         Write-Host "  [GIT] Cloning from : $RepoUrl" -ForegroundColor Cyan
         Write-Host "  [GIT] Cloning into : $TargetPath" -ForegroundColor Cyan
-        if ($IsDryRun) {
-            Write-Host "  [DRYRUN] git clone --quiet $RepoUrl $TargetPath  (skipped)" -ForegroundColor Magenta
-            # Simulate successful clone so downstream flow logs the rest of the path
-            return [pscustomobject]@{ ExitCode = 0; StdOut = ''; StdErr = ''; DryRun = $true }
-        }
         $errFile = [System.IO.Path]::GetTempFileName()
         try {
             # Redirect stderr to file so PowerShell does NOT raise NativeCommandError
@@ -187,7 +181,7 @@
             $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
             $exit = $LASTEXITCODE
             $stderr = if (Test-Path $errFile) { Get-Content $errFile -Raw } else { "" }
-            return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr; DryRun = $false }
+            return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr }
         } finally {
             Remove-Item $errFile -Force -ErrorAction SilentlyContinue
         }
@@ -195,12 +189,8 @@
 
     # ----- Helper: safe remove with read-only attribute clearing -----------
     function Remove-FolderSafe {
-        param([string]$Path, [bool]$IsDryRun)
+        param([string]$Path)
         if (-not (Test-Path $Path)) { return $true }
-        if ($IsDryRun) {
-            Write-Host "  [DRYRUN] Would remove folder: $Path  (skipped)" -ForegroundColor Magenta
-            return $true
-        }
         try {
             Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue |
                 ForEach-Object { try { $_.Attributes = 'Normal' } catch {} }
@@ -213,25 +203,78 @@
         }
     }
 
-    # ----- Detect self-location (CWD is target OR sibling 'scripts-fixer') -
+    # ----- Helper: resolve target folder (CWD-aware with safe fallback) ----
+    # Decision tree:
+    #   1. If CWD's leaf folder name == 'scripts-fixer' -> target = CWD itself
+    #      (we are inside an existing checkout; clone back into the same path).
+    #   2. Else if CWD contains a 'scripts-fixer' subfolder -> target = that subfolder.
+    #   3. Else if CWD is "safe" (writable, not a protected/system dir) -> target = <CWD>\scripts-fixer.
+    #   4. Else -> $env:USERPROFILE\scripts-fixer (fallback).
+    function Test-CwdIsSafe {
+        param([string]$Path)
+        if ([string]::IsNullOrWhiteSpace($Path)) { return $false }
+        $protected = @(
+            "$env:WINDIR",
+            "$env:WINDIR\System32",
+            "$env:WINDIR\SysWOW64",
+            "$env:ProgramFiles",
+            "${env:ProgramFiles(x86)}",
+            "$env:ProgramData"
+        ) | Where-Object { $_ }
+        foreach ($p in $protected) {
+            if ($Path -ieq $p) { return $false }
+            if ($Path.StartsWith($p + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) { return $false }
+        }
+        # Refuse drive root (e.g. "C:\") -- too noisy to drop a repo there
+        try {
+            $root = [System.IO.Path]::GetPathRoot($Path).TrimEnd('\','/')
+            $trimmed = $Path.TrimEnd('\','/')
+            if ($trimmed -ieq $root) { return $false }
+        } catch {}
+        # Quick writability probe
+        try {
+            $probe = Join-Path $Path (".sf-write-probe-" + [guid]::NewGuid().ToString('N'))
+            New-Item -ItemType File -Path $probe -Force -ErrorAction Stop | Out-Null
+            Remove-Item $probe -Force -ErrorAction SilentlyContinue
+            return $true
+        } catch {
+            return $false
+        }
+    }
+
+    function Resolve-TargetFolder {
+        param([string]$Cwd, [string]$Fallback)
+        $leaf = Split-Path $Cwd -Leaf
+        if ($leaf -ieq 'scripts-fixer') {
+            return [pscustomobject]@{ Path = $Cwd; Reason = 'cwd-is-target'; IsInside = $true }
+        }
+        $sibling = Join-Path $Cwd 'scripts-fixer'
+        if (Test-Path $sibling) {
+            return [pscustomobject]@{ Path = $sibling; Reason = 'cwd-has-sibling'; IsInside = $false }
+        }
+        if (Test-CwdIsSafe -Path $Cwd) {
+            return [pscustomobject]@{ Path = (Join-Path $Cwd 'scripts-fixer'); Reason = 'cwd-safe'; IsInside = $false }
+        }
+        return [pscustomobject]@{ Path = $Fallback; Reason = 'fallback-userprofile'; IsInside = $false }
+    }
+
+    # ----- Resolve target (CWD-aware) --------------------------------------
     $cwd            = (Get-Location).Path
-    $cwdLeaf        = Split-Path $cwd -Leaf
-    $isInsideTarget = ($cwdLeaf -ieq 'scripts-fixer')
-    $hasSibling     = Test-Path (Join-Path $cwd 'scripts-fixer')
-    $needsRelocate  = $isInsideTarget -or $hasSibling
+    $resolved       = Resolve-TargetFolder -Cwd $cwd -Fallback $fallbackFolder
+    $folder         = $resolved.Path
+    $isInsideTarget = $resolved.IsInside
 
     Write-Host ""
     Write-Host "  [LOCATE] Current directory : $cwd" -ForegroundColor DarkGray
     Write-Host "  [LOCATE] Target folder     : $folder" -ForegroundColor DarkGray
-    if ($isInsideTarget) {
-        Write-Host "  [LOCATE] You are INSIDE a 'scripts-fixer' folder -- using relocation flow." -ForegroundColor Yellow
-    } elseif ($hasSibling) {
-        Write-Host "  [LOCATE] A 'scripts-fixer' folder exists in CWD -- using relocation flow." -ForegroundColor Yellow
-    } else {
-        Write-Host "  [LOCATE] No conflict detected -- using direct clone flow." -ForegroundColor DarkGray
+    switch ($resolved.Reason) {
+        'cwd-is-target'        { Write-Host "  [LOCATE] You are INSIDE a 'scripts-fixer' folder -- cloning back into the same path." -ForegroundColor Yellow }
+        'cwd-has-sibling'      { Write-Host "  [LOCATE] A 'scripts-fixer' subfolder exists in CWD -- cloning into it." -ForegroundColor Yellow }
+        'cwd-safe'             { Write-Host "  [LOCATE] CWD is writable -- cloning into <CWD>\scripts-fixer." -ForegroundColor DarkGray }
+        'fallback-userprofile' { Write-Host "  [LOCATE] CWD is a protected/system path -- falling back to USERPROFILE." -ForegroundColor Yellow }
     }
 
-    # ----- Step out of folder if we're sitting inside it -------------------
+    # ----- Step out of folder if we're sitting inside the target -----------
     if ($isInsideTarget) {
         $parent = Split-Path $cwd -Parent
         Write-Host "  [CD] Stepping out to parent  : $parent" -ForegroundColor Yellow
@@ -326,19 +369,19 @@
         }
     }
 
-    # ----- Launch interactive menu -----------------------------------------
+    # ----- Enter folder and launch run.ps1 (no args, user picks) -----------
     Write-Host ""
     Write-Host "  [CD] Entering              : $folder" -ForegroundColor Cyan
     if ($DryRun) {
         Write-Host "  [DRYRUN] Set-Location $folder  (skipped)" -ForegroundColor Magenta
-        Write-Host "  [DRYRUN] & .\run.ps1 -d  (skipped)" -ForegroundColor Magenta
+        Write-Host "  [DRYRUN] & .\run.ps1  (skipped)" -ForegroundColor Magenta
         Write-Host ""
         Write-Host "  [DRYRUN] Dry-run complete. Re-run without -DryRun to actually install." -ForegroundColor Magenta
         Write-Host ""
         return
     }
     Set-Location $folder
-    Write-Host "  Launching interactive menu..." -ForegroundColor Cyan
+    Write-Host "  [RUN] Launching .\run.ps1 ..." -ForegroundColor Cyan
     Write-Host ""
-    & .\run.ps1 -d
+    & .\run.ps1
 } @args

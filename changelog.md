@@ -2,16 +2,41 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.38.0] -- 2026-04-19
+
+### Fixed
+
+- **`install.ps1` no longer ignores the user's current drive when picking the clone target.** Previously, running `irm .../install.ps1 | iex` from `D:\scripts-fixer` cloned into `C:\Users\Administrator\scripts-fixer`, dragging the install onto the system drive and away from where the user explicitly invoked it. The bootstrap now resolves the target **CWD-aware** with a 4-step decision tree:
+  1. If CWD's leaf is `scripts-fixer` → target = CWD itself (clone back into the same path on the same drive).
+  2. Else if CWD has a `scripts-fixer` subfolder → target = that subfolder.
+  3. Else if CWD is **safe** (writable, not `$env:WINDIR` / `Program Files` / `ProgramData` / a drive root) → target = `<CWD>\scripts-fixer`.
+  4. Else → fallback to `$env:USERPROFILE\scripts-fixer` (only triggers when CWD is a system/protected path).
+- **No more auto-launch of "Install All Dev Tools".** The bootstrap previously ended with `& .\run.ps1 -d`, which dispatched straight into script 12 and stole the user's choice. It now ends with `& .\run.ps1` (no args) so the dispatcher's own menu/help is shown and the user picks what to do.
+
+### Added
+
+- New helpers in `install.ps1`:
+  - `Test-CwdIsSafe -Path <p>` — returns `$true` only when path is writable, not protected (`%WINDIR%`, `Program Files`, `Program Files (x86)`, `ProgramData`), and not a drive root. Includes a write-probe.
+  - `Resolve-TargetFolder -Cwd <c> -Fallback <f>` — returns `[pscustomobject]@{ Path; Reason; IsInside }` driving every downstream decision.
+- New `[LOCATE]` reason lines so the user always sees **why** a target was chosen:
+  - `cwd-is-target` → "You are INSIDE a 'scripts-fixer' folder -- cloning back into the same path."
+  - `cwd-has-sibling` → "A 'scripts-fixer' subfolder exists in CWD -- cloning into it."
+  - `cwd-safe` → "CWD is writable -- cloning into <CWD>\scripts-fixer."
+  - `fallback-userprofile` → "CWD is a protected/system path -- falling back to USERPROFILE."
+
+### Documentation
+
+- New memory entry: `mem://features/install-target-resolution` documenting the decision tree, "unsafe" CWD list, and final-action change.
+- New spec section: `spec/install-bootstrap/readme.md` § "Target Folder Resolution".
+- `.lovable/plan.md` updated with v0.38.0 completion + bash mirror tracked as follow-up (still hardcoded to `$HOME/scripts-fixer`).
+- Memory index `Core` rules updated to reflect new bootstrap behaviour.
+
 ## [v0.37.1] -- 2026-04-19
 
 ### Added
 
-- **`-DryRun` flag for `install.ps1`** -- prints every `[LOCATE]` / `[CD]` / `[CLEAN]` / `[GIT]` / `[TEMP]` / `[COPY]` step the bootstrap **would** take, without actually cloning, removing, copying, or executing `run.ps1`. Useful for previewing the self-relocation flow before committing to it on a sensitive folder.
-  - Banner shows `[DRYRUN] Dry-run mode ON -- nothing will be cloned, removed, copied, or executed.` (magenta) so the mode is visually unmistakable.
-  - Skipped operations are tagged with `[DRYRUN] <action>  (skipped)` so the user sees exactly which native command was avoided (e.g. `[DRYRUN] git clone --quiet <url> <target>  (skipped)`, `[DRYRUN] Would remove folder: <path>  (skipped)`, `[DRYRUN] Copy-Item -Recurse -Force from <src> to <dst>  (skipped)`).
-  - Both branches of the relocation flow (direct clone AND temp-staging fallback) honour `-DryRun`. Final `cd` + `& .\run.ps1 -d` are also skipped, with a closing `[DRYRUN] Dry-run complete. Re-run without -DryRun to actually install.` line.
-  - Usage: `irm .../install.ps1 | iex -DryRun` or piped: `& ([scriptblock]::Create((irm .../install.ps1))) -DryRun`
-  - `Invoke-GitClone` and `Remove-FolderSafe` helpers gained an `-IsDryRun` switch so the gating is centralized -- no logic forks at every call-site.
+- **`-DryRun` flag for `install.ps1`** -- prints every `[LOCATE]` / `[CD]` / `[CLEAN]` / `[GIT]` / `[TEMP]` / `[COPY]` step the bootstrap would take, without cloning, removing, copying, or executing `run.ps1`. Banner shows magenta `[DRYRUN]` notice; skipped operations tagged `[DRYRUN] <action>  (skipped)`.
+- `Invoke-GitClone` and `Remove-FolderSafe` gained an `-IsDryRun` switch so gating is centralized.
 
 ### Documentation
 
@@ -21,25 +46,19 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
-- **`install.ps1` no longer prints red `NativeCommandError` noise on a successful clone.** Git writes its `Cloning into '...'` progress to stderr, and the previous `2>&1` stream merge promoted those lines to PowerShell `RemoteException` records (rendered as fatal errors) even when `git clone` exited 0. The bootstrap now captures stderr to a temp file with `2>$errFile`, runs `git clone --quiet`, and only surfaces the captured stderr when `$LASTEXITCODE -ne 0`.
-- **`install.sh` mirrors the same stderr fix.** Captures git stderr via `mktemp`, uses `--quiet`, prints captured output (indented via `sed`) only on non-zero exit.
+- **`install.ps1` no longer prints red `NativeCommandError` noise on a successful clone.** Git writes `Cloning into '...'` to stderr; previous `2>&1` merge promoted those lines to PowerShell `RemoteException` records (rendered as fatal errors) even on exit 0. Bootstrap now captures stderr to a temp file with `2>$errFile`, runs `git clone --quiet`, and only surfaces stderr on `$LASTEXITCODE -ne 0`.
+- **`install.sh` mirrors the same stderr fix** via `mktemp`, `--quiet`, and `sed`-indented stderr only on non-zero exit.
 
 ### Added
 
-- **Self-relocation clone flow in `install.ps1` and `install.sh`** -- when the user re-runs the one-liner from **inside** `~/scripts-fixer` or from a parent directory that already contains a `scripts-fixer` subfolder, the bootstrap now:
-  1. Logs `[LOCATE]` with current directory + target path so the user sees exactly what is detected.
-  2. `cd`s out to the parent if the shell is sitting inside the target (releases the directory handle that was causing `Remove-Item` / `rm -rf` to fail on Windows).
-  3. Attempts a safe removal of the target folder (PowerShell clears read-only attributes on git pack files first; bash uses `rm -rf`).
-  4. **If removal succeeds** -- clones directly into the final target path.
-  5. **If removal fails** (file lock, perms, NFS, etc.) -- falls back to staging the clone in `$env:TEMP\scripts-fixer-bootstrap-<timestamp>` (PowerShell) or `${TMPDIR:-/tmp}/scripts-fixer-bootstrap-<timestamp>` (bash), then `Copy-Item -Recurse -Force` / `cp -a "$TEMP_DIR/." "$FOLDER/"` overlays the contents into the locked target. Best-effort cleanup of the temp staging dir after.
-  6. Logs every step with `[LOCATE]` / `[CD]` / `[CLEAN]` / `[GIT]` / `[OK]` / `[INFO]` / `[TEMP]` / `[COPY]` / `[ERROR]` / `[WARN]` tags. Every log line includes the **exact path** involved per the project's CODE RED file-path-error rule.
-- **Pre-clone URL log** -- both bootstraps now print `[GIT] Cloning from : <repo URL>` and `[GIT] Cloning into : <target path>` immediately before `git clone`, so the user can see exactly which `-vN` repo is about to be pulled.
-- New helper functions: `Invoke-GitClone` + `Remove-FolderSafe` in `install.ps1`, and `invoke_git_clone` + `remove_folder_safe` in `install.sh`.
+- **Self-relocation clone flow in `install.ps1` and `install.sh`** -- when re-running from inside `scripts-fixer` (or a parent containing it), the bootstrap `cd`s out, attempts safe removal (clears RO bits on Windows), and falls back to TEMP staging + recursive copy if removal fails. Every step logged with `[LOCATE]`/`[CD]`/`[CLEAN]`/`[GIT]`/`[TEMP]`/`[COPY]` tags including exact paths.
+- **Pre-clone URL log** -- `[GIT] Cloning from : <repo URL>` and `[GIT] Cloning into : <target path>` so the user sees exactly which `-vN` repo is being pulled.
+- New helpers: `Invoke-GitClone` + `Remove-FolderSafe` (PowerShell), `invoke_git_clone` + `remove_folder_safe` (bash).
 
 ### Documentation
 
-- **`spec/install-bootstrap/readme.md`** gained a "Self-Relocation Clone Flow" section covering the stderr fix, detection logic, branch behaviour, log format, a 6-row test matrix, and a PowerShell-vs-bash equivalence table so both implementations stay in sync.
-- New memory entry: `mem://features/install-self-relocation` documenting the two-bug fix and required logging tags for future maintainers.
+- `spec/install-bootstrap/readme.md` § "Self-Relocation Clone Flow" with PS↔bash equivalence table and 6-row test matrix.
+- New memory entry: `mem://features/install-self-relocation`.
 
 ## [v0.36.0] -- 2026-04-18
 

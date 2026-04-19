@@ -128,7 +128,6 @@ Or, when discovery is skipped:
 | `--no-upgrade` (bash)            | Skip discovery, run self                            |
 | `-Version` (PowerShell)          | Show current bootstrap + latest resolved, then exit   |
 | `--version` (bash)               | Show current bootstrap + latest resolved, then exit   |
-| `-DryRun` (PowerShell)           | Print every `[LOCATE]`/`[CD]`/`[CLEAN]`/`[GIT]`/`[COPY]` step it WOULD take, then exit. Nothing is cloned, removed, copied, or executed. |
 | `$env:SCRIPTS_FIXER_NO_UPGRADE=1`| Skip discovery (CI-friendly)                        |
 | `$env:SCRIPTS_FIXER_PROBE_MAX=N` | Override probe range (default 30, max 100)          |
 | `$env:SCRIPTS_FIXER_REDIRECTED=1`| Internal: prevents redirect loops, do not set      |
@@ -251,6 +250,68 @@ When copying `install.ps1` and `install.sh` into a new `-vN` repository (e.g., `
 - **Both** bootstraps MUST be bumped — a mismatch causes redirect loops or misleading banners
 - Version numbers must be **integers**, not strings (for proper numeric comparison)
 - Never commit the old version number to a new repo — users will see confusing "v7" banners when running from v8
+
+---
+
+## Target Folder Resolution (install.ps1, v0.38.0+)
+
+The PowerShell bootstrap resolves the clone target **dynamically based on the
+user's current working directory**, NOT a hardcoded `%USERPROFILE%`.
+
+### Decision tree (first match wins)
+
+| # | Condition                                                       | Target                              | Reason tag             |
+|---|-----------------------------------------------------------------|-------------------------------------|------------------------|
+| 1 | `Split-Path -Leaf $cwd` equals `scripts-fixer`                  | `$cwd` itself                       | `cwd-is-target`        |
+| 2 | `Test-Path (Join-Path $cwd 'scripts-fixer')`                    | `<cwd>\scripts-fixer`               | `cwd-has-sibling`      |
+| 3 | `Test-CwdIsSafe -Path $cwd` returns `$true`                     | `<cwd>\scripts-fixer`               | `cwd-safe`             |
+| 4 | (otherwise)                                                     | `$env:USERPROFILE\scripts-fixer`    | `fallback-userprofile` |
+
+### What `Test-CwdIsSafe` rejects
+
+- Any path equal to or inside: `$env:WINDIR`, `$env:WINDIR\System32`,
+  `$env:WINDIR\SysWOW64`, `$env:ProgramFiles`, `${env:ProgramFiles(x86)}`,
+  `$env:ProgramData`.
+- Drive roots (`C:\`, `D:\`) — too noisy to drop a 100-script repo there.
+- Any path that fails a write-probe (`New-Item` of a temp file).
+
+### `[LOCATE]` log lines (one per `Reason`)
+
+```
+[LOCATE] Current directory : D:\
+[LOCATE] Target folder     : D:\scripts-fixer
+[LOCATE] CWD is writable -- cloning into <CWD>\scripts-fixer.
+```
+
+```
+[LOCATE] Current directory : C:\Windows\System32
+[LOCATE] Target folder     : C:\Users\X\scripts-fixer
+[LOCATE] CWD is a protected/system path -- falling back to USERPROFILE.
+```
+
+### Final action
+
+After clone, the bootstrap runs `& .\run.ps1` with **no arguments** (was
+`& .\run.ps1 -d`). The user picks what to do from the dispatcher menu instead
+of being thrown straight into "Install All Dev Tools".
+
+### Test matrix (PowerShell)
+
+| Run from                             | Expected target                   |
+|--------------------------------------|-----------------------------------|
+| `D:\`                                | `D:\scripts-fixer`                |
+| `D:\my-stuff`                        | `D:\my-stuff\scripts-fixer`       |
+| `D:\scripts-fixer` (inside)          | `D:\scripts-fixer` (same)         |
+| `D:\` with `D:\scripts-fixer` exists | `D:\scripts-fixer` (sibling)      |
+| `C:\Users\X`                         | `C:\Users\X\scripts-fixer`        |
+| `C:\Windows\System32` (protected)    | `C:\Users\X\scripts-fixer` (FB)   |
+| `C:\` (drive root)                   | `C:\Users\X\scripts-fixer` (FB)   |
+
+### Bash status
+
+`install.sh` does NOT yet implement CWD-aware target resolution — it still
+uses `$HOME/scripts-fixer` unconditionally. Tracked as a follow-up in
+`.lovable/plan.md`.
 
 ---
 
