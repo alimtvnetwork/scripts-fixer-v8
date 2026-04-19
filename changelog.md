@@ -2,6 +2,38 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.40.3] -- 2026-04-19
+
+### Added (registry summary auto-regen wired into release pipeline)
+
+- **`bump-version.ps1` now regenerates `spec/script-registry-summary.md` automatically** after writing the new version. Runs `node scripts/_internal/generate-registry-summary.cjs` if Node is on PATH. Idempotent: produces byte-identical output on unchanged inputs, so version-only bumps don't dirty the summary. Skips with a yellow `[ SKIP ]` (not a failure) when Node is missing -- bump still succeeds, but a warning tells you to regenerate manually before tagging.
+- **CI drift detection** in `.github/workflows/release.yml`. New "Drift check" step (runs after version alignment, before ZIP build):
+  1. Hashes the committed `spec/script-registry-summary.md`.
+  2. Runs `node scripts/_internal/generate-registry-summary.cjs` (overwrites the file in the runner workspace only).
+  3. Hashes the regenerated file and compares.
+  4. If hashes differ, fails the release with a `::error` annotation pointing at the file, prints the full `git diff` of what changed, and refuses to publish the GitHub Release.
+- **`actions/setup-node@v4` step** added to the workflow so `node` is available in the Windows runner for the drift check.
+
+### Changed
+
+- **`scripts/version.json`** -- bumped to `0.40.3`.
+- **`readme.md`** -- Changelog badge `v0.40.1 -> v0.40.3`.
+
+### Why
+
+Until now, `spec/script-registry-summary.md` could silently drift from `scripts/registry.json` + `scripts/<folder>/config.json` (it had at v0.30 -- the file claimed 36 scripts when there were already 51). With this change:
+
+- Local dev: every `bump-version.ps1` run refreshes the summary.
+- Remote CI: every `git tag v*.*.*` push refuses to release if the committed summary is stale.
+
+Drift is now structurally impossible without bypassing both gates.
+
+### Notes
+
+- This is a release-pipeline / tooling change only -- no runtime behavior change in any installer script.
+- The drift check runs on the same Windows runner used to build the ZIP, so no extra job spin-up cost.
+- `release.ps1` was deliberately not touched -- the regeneration belongs at version-bump time (where it can be committed), not at packaging time (where the ZIP is already in flight).
+
 ## [v0.40.1] -- 2026-04-19
 
 ### Added (`spec/script-registry-summary.md` auto-regen)
