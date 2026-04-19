@@ -1598,13 +1598,18 @@ if ($hasInstallKeywords) {
 
     $totalSteps = @($resolvedEntries).Count
     $idList = ($resolvedEntries | ForEach-Object {
-        $label = "$($_.Id)"
-        $hasMode = -not [string]::IsNullOrWhiteSpace($_.Mode)
-        if ($hasMode) {
-            $shortMode = ($_.Mode -replace '^group ', '')
-            $label = "$label[$shortMode]"
+        $isSubcommand = $_.Kind -eq "subcommand"
+        if ($isSubcommand) {
+            "$($_.Dispatcher):$($_.Action)"
+        } else {
+            $label = "$($_.Id)"
+            $hasMode = -not [string]::IsNullOrWhiteSpace($_.Mode)
+            if ($hasMode) {
+                $shortMode = ($_.Mode -replace '^group ', '')
+                $label = "$label[$shortMode]"
+            }
+            $label
         }
-        $label
     }) -join ', '
     Write-Host ""
     Write-Host "  [ INFO ] " -ForegroundColor Cyan -NoNewline
@@ -1625,9 +1630,32 @@ if ($hasInstallKeywords) {
         39 = "DOTNET_MODE"
         40 = "JAVA_MODE"
         41 = "PYTHON_LIBS_MODE"
+        48 = "CONEMU_MODE"
     }
 
     foreach ($entry in $resolvedEntries) {
+        $isSubcommand = $entry.Kind -eq "subcommand"
+        if ($isSubcommand) {
+            # Dispatch e.g. "os clean" or "profile minimal" via root run.ps1 sub-dispatcher
+            $dispatcherScript = Join-Path $RootDir "scripts\$($entry.Dispatcher)\run.ps1"
+            $isDispatcherPresent = Test-Path $dispatcherScript
+            if (-not $isDispatcherPresent) {
+                Write-Host ""
+                Write-Host "  [ FAIL ] " -ForegroundColor Red -NoNewline
+                Write-Host "Subcommand dispatcher not found: $dispatcherScript"
+                $failCount++
+                continue
+            }
+            Write-Host ""
+            Write-Host "  ----- Subcommand: $($entry.Dispatcher) $($entry.Action) -----" -ForegroundColor Cyan
+            $actionParts = $entry.Action -split '\s+' | Where-Object { $_.Length -gt 0 }
+            & $dispatcherScript @actionParts
+            $code = $LASTEXITCODE
+            if ($code -eq 0 -or $null -eq $code) { $successCount++ } else { $failCount++ }
+            Refresh-EnvPath
+            continue
+        }
+
         $id      = $entry.Id
         $modeKey = $entry.Mode
         $hasModeOverride = -not [string]::IsNullOrWhiteSpace($modeKey)
