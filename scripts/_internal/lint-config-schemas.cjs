@@ -76,7 +76,7 @@ const DISPATCHER_SCHEMAS = {
   },
   "databases": {
     label: "Databases dispatcher",
-    allowedKeys: ["_comment", "devDir", "installMode", "databases"],
+    allowedKeys: ["_comment", "devDir", "installMode", "databases", "groups", "sequence"],
   },
   "models": {
     label: "Models dispatcher",
@@ -88,7 +88,7 @@ const DISPATCHER_SCHEMAS = {
   },
   "profile": {
     label: "Profile dispatcher",
-    allowedKeys: ["_comment", "profiles", "defaultProfile"],
+    allowedKeys: ["_comment", "profiles", "defaultProfile", "modeEnvVars", "execution"],
   },
 };
 
