@@ -1370,7 +1370,22 @@ if ($hasCommand) {
     $isBareStatusCommand  = $normalizedCommand -eq "status"
     $isBareDoctorCommand  = $normalizedCommand -eq "doctor"
     $isBareModelsCommand  = $normalizedCommand -eq "models" -or $normalizedCommand -eq "model"
+    $isBareOsCommand      = $normalizedCommand -eq "os"
     $isBareScriptId = $normalizedCommand -match '^\d+$'
+
+    if ($isBareOsCommand) {
+        Show-VersionHeader
+        $osScript = Join-Path $RootDir "scripts\os\run.ps1"
+        $isOsScriptPresent = Test-Path $osScript
+        if (-not $isOsScriptPresent) {
+            Write-Host "  [ FAIL ] " -ForegroundColor Red -NoNewline
+            Write-Host "OS dispatcher missing at: $osScript"
+            exit 1
+        }
+        & $osScript @Install
+        exit $LASTEXITCODE
+    }
+
 
     if ($isBareInstallCommand) {
         # Merge positional remaining args into $Install

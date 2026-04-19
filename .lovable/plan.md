@@ -1,6 +1,6 @@
 # Project Plan -- Dev Tools Setup
 
-## Current Version: v0.39.1
+## Current Version: v0.39.2
 ## Last Updated: 2026-04-19
 
 ---
@@ -9,9 +9,9 @@
 
 ### 2025 Batch
 - [x] **Group A complete** -- scripts 47 (ubuntu-font), 48 (conemu+settings), 49 (whatsapp), 50 (onenote+tray+onedrive), 51 (lightshot+tweaks). Wired into registry + keywords. v0.39.1 released.
-- [ ] **Group B** -- `os` dispatcher: `clean`, `hib-off`, `flp`, `add-user`
+- [x] **Group B complete** -- `os` dispatcher with `clean`, `hib-off` (+ `hib-on`), `flp`, `add-user`. Self-elevation, plain-CLI password (accepted risk), PIN hint file, email comment attribute. Wired into root run.ps1 + 15 new keywords using `["os:<action>"]` array convention. v0.39.2 released.
 - [ ] **Group C** -- `git-tools` dispatcher: `gsa` (wildcard + `--scan`)
-- [ ] **Group D** -- `profile` dispatcher: minimal, base, git-compact, advance, cpp-dx, small-dev
+- [ ] **Group D** -- `profile` dispatcher: minimal, base, git-compact, advance, cpp-dx, small-dev (also handles the new `os:` and `profile:` keyword conventions in the install dispatcher)
 - [ ] **Group E** -- polish: default git config update, PSReadLine, bump to v0.40.0
 
 ## ⏳ Pending / Next Steps
