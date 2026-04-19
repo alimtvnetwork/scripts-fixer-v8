@@ -739,6 +739,16 @@ function Resolve-InstallKeywords {
         # Determine mode override for this token (if any)
         $tokenModes = $modesMap.$token
         foreach ($id in $ids) {
+            # ── String entry (subcommand convention) ───────────────────
+            # e.g. "os:clean", "profile:base"  -- routes to scripts/<dispatcher>/run.ps1 <action> <args>
+            $isStringEntry = ($id -is [string]) -and ($id -match '^([a-z]+):(.+)$')
+            if ($isStringEntry) {
+                $dispatcher = $Matches[1]
+                $action     = $Matches[2]
+                $entries.Add(@{ Kind = "subcommand"; Dispatcher = $dispatcher; Action = $action; Token = $token })
+                continue
+            }
+
             $mode = $null
             if ($null -ne $tokenModes) {
                 $mode = $tokenModes."$id"
@@ -747,6 +757,8 @@ function Resolve-InstallKeywords {
             # Check if an entry with the same ID already exists
             $existingEntry = $null
             foreach ($e in $entries) {
+                $isScriptEntry = ($e.Kind -eq $null) -or ($e.Kind -eq "script")
+                if (-not $isScriptEntry) { continue }
                 $isSameId = $e.Id -eq [int]$id
                 if ($isSameId) {
                     # Same ID: check if mode is identical or mergeable
@@ -762,7 +774,7 @@ function Resolve-InstallKeywords {
 
             $isNewEntry = $null -eq $existingEntry
             if ($isNewEntry) {
-                $entries.Add(@{ Id = [int]$id; Mode = $mode })
+                $entries.Add(@{ Kind = "script"; Id = [int]$id; Mode = $mode })
             } else {
                 # Merge: keep the higher-priority mode (only for install+settings / install-only / settings-only)
                 $existingPri = if ($null -ne $existingEntry.Mode -and $modePriority.ContainsKey($existingEntry.Mode)) { $modePriority[$existingEntry.Mode] } else { 0 }
