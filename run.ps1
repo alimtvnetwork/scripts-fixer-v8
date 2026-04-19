@@ -793,8 +793,12 @@ function Resolve-InstallKeywords {
         return $null
     }
 
-    # Sort by ID, preserving order for duplicate IDs
-    $sorted = $entries | Sort-Object { [int]$_.Id }
+    # Sort: subcommands keep their original order at the END (run after script installs).
+    # Script entries are sorted by ID. We split, sort scripts, then concat.
+    $scriptEntries     = @($entries | Where-Object { $_.Kind -eq "script" -or $null -eq $_.Kind })
+    $subcommandEntries = @($entries | Where-Object { $_.Kind -eq "subcommand" })
+    $sortedScripts     = $scriptEntries | Sort-Object { [int]$_.Id }
+    $sorted            = @($sortedScripts) + @($subcommandEntries)
     return $sorted
 }
 
