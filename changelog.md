@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.44.2] -- 2026-04-20
+
+### Added (root dispatcher --version flag)
+
+- **`run.ps1 --version` / `run.ps1 version` / `run.ps1 -V`**: new short-circuit at the very top of the dispatch block that prints a self-contained version banner and exits 0 -- no git pull, no help, no script execution.
+- Banner contents:
+  - `scripts-fixer v<X.Y.Z>` (read live from `scripts/version.json`).
+  - `Commit  : <short> (dirty)?  (<full SHA>)` -- resolved via `git rev-parse HEAD` / `--short HEAD` from the repo root. Appends `(dirty)` when `git status --porcelain` reports uncommitted changes. Falls back to `unknown` when git is missing or the folder is not a git checkout.
+  - `Branch  : <branch>` -- via `git rev-parse --abbrev-ref HEAD`.
+  - `Root    : <RootDir>` -- absolute path of the dispatcher.
+  - `Readme  : https://github.com/alimtvnetwork/scripts-fixer-v8/blob/main/readme.md`.
+  - Trailing no-warranty reminder line, consistent with the v0.43.0 footer.
+- **`-V` (capital) detection**: PowerShell params are case-insensitive and `-v` (lowercase) is already bound to the VS Code shortcut switch, so a normal `[switch]$V` would collide. The handler instead inspects `$MyInvocation.Line` with a case-sensitive `-cmatch` to detect a literal `-V` token, leaving `-v` (lowercase) untouched as the VS Code shortcut.
+- Tolerant of missing `git`, non-repo checkouts, ZIP downloads, and detached HEAD -- every git lookup is wrapped in `try/catch` and defaults to `unknown` instead of erroring.
+
+### Bumped
+
+- `scripts/version.json`: 0.44.1 -> 0.44.2.
+
+> Note: requested as v0.43.1, but the project was already at v0.44.1, so the increment lands as **v0.44.2** (semver forward-only).
+
 ## [v0.44.1] -- 2026-04-20
 
 ### Added (PowerShell execution policy -- run with full access)
