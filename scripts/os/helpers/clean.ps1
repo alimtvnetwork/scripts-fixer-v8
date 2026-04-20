@@ -103,6 +103,10 @@ $catalog = @(
     @{ Cat = "office";              Bucket = "E"; Helper = "office.ps1" },
     @{ Cat = "whatsapp";            Bucket = "E"; Helper = "whatsapp.ps1" },
     @{ Cat = "telegram";            Bucket = "E"; Helper = "telegram.ps1" },
+    @{ Cat = "zoom";                Bucket = "E"; Helper = "zoom.ps1" },
+    @{ Cat = "slack";               Bucket = "E"; Helper = "slack.ps1" },
+    @{ Cat = "teams";               Bucket = "E"; Helper = "teams.ps1" },
+    @{ Cat = "onedrive-cache";      Bucket = "E"; Helper = "onedrive-cache.ps1" },
     # Bucket F -- Dev tools
     @{ Cat = "vscode-cache";        Bucket = "F"; Helper = "vscode-cache.ps1" },
     @{ Cat = "npm-cache";           Bucket = "F"; Helper = "npm-cache.ps1" },
