@@ -8,9 +8,11 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
 [![Scripts](https://img.shields.io/badge/Scripts-51-green)](scripts/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![Changelog](https://img.shields.io/badge/Changelog-v0.41.0-orange)](changelog.md)
+[![Changelog](https://img.shields.io/badge/Changelog-v0.43.0-orange)](changelog.md)
 
 *One command to set up your entire dev environment. No manual installs. No guesswork.*
+
+> **No warranty.** Personal toolkit made for fun to save time on fresh OS installs. Comes with **absolutely no guarantees** -- we are not responsible for OS damage, data loss, broken installs, registry mishaps, or anything else that goes sideways. **Use at your own risk.** See the [Disclaimer](#disclaimer) section for the full statement.
 
 </div>
 
@@ -581,6 +583,26 @@ Recognized as a **top 1% talent at Crossover** and one of the top software archi
 | **Facebook** | [riseupasia.talent](https://www.facebook.com/riseupasia.talent/) |
 | **LinkedIn** | [Riseup Asia](https://www.linkedin.com/company/105304484/) |
 | **YouTube** | [@riseup-asia](https://www.youtube.com/@riseup-asia) |
+
+---
+
+## Disclaimer
+
+> **No warranty. Use at your own risk.**
+
+This project is a **personal toolkit** -- a collection of PowerShell scripts I wrote for myself to save time when setting up fresh Windows installs. It is shared **as-is, for fun and convenience**, with **absolutely no guarantees of any kind**.
+
+By running any script in this repository you agree that:
+
+- The author(s) and contributors are **not responsible** for any damage caused to your operating system, hardware, data, configuration, registry, installed software, network, or anything else -- direct, indirect, incidental, or consequential.
+- Some scripts run with **administrator privileges** and modify system-level state (services, registry keys, package installations, environment variables, scheduled tasks, file system permissions). Things can break.
+- Some scripts perform **destructive cleanup** (Recycle Bin, Windows Search index, DISM ResetBase, OBS recordings, browser caches). Once data is gone, it is gone.
+- This is **not a professional product**, has **no support contract**, no SLA, and no obligation on anyone to fix anything. PRs and issues are welcome but never promised.
+- You should **read what a script does before running it**. Every script has a `config.json`, a `readme.md` in its folder, and a `--dry-run` mode where applicable. Use them.
+
+If you are not comfortable with any of the above, **do not run these scripts**.
+
+Every script also prints its current project version and the script path it ran from in the footer of every run, so you always know which version of the toolkit produced any given output.
 
 ---
 
