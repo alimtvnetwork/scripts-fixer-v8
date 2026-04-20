@@ -1382,6 +1382,58 @@ function Invoke-PathCommand {
 #             .\run.ps1 path D:\devtools
 $normalizedCommand = ""
 $hasCommand = -not [string]::IsNullOrWhiteSpace($Command)
+
+# -- --version / -V / version : print version banner and exit ---------
+# Detect raw -V (capital) from invocation line because -v (lowercase) is
+# already bound to the VS Code shortcut switch and PowerShell params are
+# case-insensitive. Also accept --version and the positional 'version' command.
+$rawInvocation = "$($MyInvocation.Line)"
+$isRawDashCapV = $rawInvocation -cmatch '(?<![A-Za-z0-9_])-V(?![A-Za-z0-9_])'
+$isVersionCommand = $hasCommand -and ($Command.Trim().ToLower() -in @('--version','version','-version'))
+if ($isVersionCommand -or $isRawDashCapV) {
+    $ver = Get-ScriptVersion
+    $verDisplay = if ([string]::IsNullOrWhiteSpace($ver)) { "unknown" } else { $ver }
+
+    # Resolve git commit SHA -- tolerate missing git or non-repo checkout.
+    $gitShaShort = "unknown"
+    $gitShaFull  = "unknown"
+    $gitBranch   = "unknown"
+    $isGitDirty  = $false
+    try {
+        Push-Location $RootDir
+        $gitCmd = Get-Command git -ErrorAction SilentlyContinue
+        $hasGit = $null -ne $gitCmd
+        if ($hasGit) {
+            $insideRepo = & git rev-parse --is-inside-work-tree 2>$null
+            $isInsideRepo = "$insideRepo".Trim() -eq "true"
+            if ($isInsideRepo) {
+                $shaFullOut  = & git rev-parse HEAD 2>$null
+                $shaShortOut = & git rev-parse --short HEAD 2>$null
+                $branchOut   = & git rev-parse --abbrev-ref HEAD 2>$null
+                $statusOut   = & git status --porcelain 2>$null
+                if ($shaFullOut)  { $gitShaFull  = "$shaFullOut".Trim() }
+                if ($shaShortOut) { $gitShaShort = "$shaShortOut".Trim() }
+                if ($branchOut)   { $gitBranch   = "$branchOut".Trim() }
+                if ("$statusOut".Trim().Length -gt 0) { $isGitDirty = $true }
+            }
+        }
+    } catch {} finally { Pop-Location }
+
+    $dirtyTag  = if ($isGitDirty) { " (dirty)" } else { "" }
+    $readmeUrl = "https://github.com/alimtvnetwork/scripts-fixer-v8/blob/main/readme.md"
+
+    Write-Host ""
+    Write-Host "  scripts-fixer v$verDisplay" -ForegroundColor Magenta
+    Write-Host "  Commit  : $gitShaShort$dirtyTag  ($gitShaFull)" -ForegroundColor DarkGray
+    Write-Host "  Branch  : $gitBranch" -ForegroundColor DarkGray
+    Write-Host "  Root    : $RootDir" -ForegroundColor DarkGray
+    Write-Host "  Readme  : $readmeUrl" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  No warranty. Personal toolkit -- use at your own risk." -ForegroundColor DarkYellow
+    Write-Host ""
+    exit 0
+}
+
 if ($hasCommand) {
     $normalizedCommand = $Command.Trim().ToLower()
     $isBareInstallCommand = $normalizedCommand -eq "install"
