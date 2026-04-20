@@ -2,6 +2,34 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.45.0] -- 2026-04-20
+
+### Added (OS Clean Phase 3 -- 4 new app-cache categories, 36 -> 40 total)
+
+All four are **non-destructive cache-only**: no chats, no recordings, no synced files, no auth tokens, no message history are ever touched. All four are wired into the `os clean` aggregate (no consent gate -- they are safe by construction) and individually invokable as `os clean-<name>`.
+
+- **`os clean-zoom`** (`scripts/os/helpers/clean-categories/zoom.ps1`): sweeps `%APPDATA%\Zoom` and `%LOCALAPPDATA%\Zoom` -- `Cache`, `GPUCache`, `Code Cache`, `blob_storage`, `data\Cache`, `data\VideoMail\cache`, `data\file_transfer\Cache`, `Temp`. **Explicitly EXCLUDES** `data\` (chat history + contacts + settings), `bin\`, `installer\`, and `~\Documents\Zoom` (LOCAL RECORDINGS -- never touched).
+- **`os clean-slack`**: sweeps `%APPDATA%\Slack` plus auto-discovered MS Store variants under `%LOCALAPPDATA%\Packages\*Slack*\LocalCache\Roaming\Slack`. Wipes `Cache`, `Code Cache`, `GPUCache`, `blob_storage`, `Service Worker\CacheStorage`, `Service Worker\ScriptCache`, `Crashpad\completed`, `logs\preload-logs`. **Explicitly EXCLUDES** `storage\` (login tokens), `IndexedDB` (offline message cache), `Local Storage` (workspace auth), `Session Storage`.
+- **`os clean-teams`**: handles BOTH classic Teams (`%APPDATA%\Microsoft\Teams`, Electron, deprecated) AND new Teams (`%LOCALAPPDATA%\Packages\MSTeams_*\LocalCache\Microsoft\MSTeams`, WebView2). Classic sweeps `Cache`, `Code Cache`, `GPUCache`, `blob_storage`, `tmp`, `Service Worker\*`, `Application Cache`. New sweeps `EBWebView\Default\{Cache, Code Cache, GPUCache, Service Worker\*}` and `Logs`. **Explicitly EXCLUDES** Cookies, Local Storage, IndexedDB, Backgrounds, storage.json, settings.json (all auth + chat state preserved).
+- **`os clean-onedrive-cache`**: **highest safety bar** -- this helper NEVER touches `$env:OneDrive` or `%USERPROFILE%\OneDrive*` (the actual synced folder). Only sweeps client-side metadata under `%LOCALAPPDATA%\Microsoft\OneDrive`: `logs`, `setup\logs`, `ListSync\{Cache,Logs}`, `Update`, `EnterpriseUpdate`, `BackupTool\logs`, plus loose `thumb*.dat` / `TelemetryCache*.otc` / `*.tmp` files at the root level. **Explicitly EXCLUDES** `settings\` (account binding -- removing forces re-link) and `StorageProvider\` (Files-On-Demand placeholders -- removing breaks online-only files).
+
+### Wiring
+
+- **`scripts/os/run.ps1` `$script:CleanCatalog`**: appended 4 new Bucket E entries with safety annotations in the `Desc` field. They show up in `os clean -h` and `os clean --help`.
+- **`scripts/os/helpers/clean.ps1` aggregate runner**: appended 4 new entries to the catalog table. `os clean` (no suffix) now runs **40** categories sequentially, accumulates locked-files, and emits the standard summary.
+- **CODE RED file-path discipline**: every Test-Path / enumeration / sweep failure logs the exact file path + reason (`Write-Log "... LOCKED: <fullpath> reason: <message>"`).
+
+### Aggregate count
+
+- **Before**: 36 categories (Phase 1 + Phase 2).
+- **After**: **40 categories** (Phase 3 adds 4 to Bucket E).
+
+### Bumped
+
+- `scripts/version.json`: 0.44.2 -> 0.45.0 (minor bump -- new feature surface).
+
+> Note: requested as v0.44.0, but the project was already at v0.44.2, so the increment lands as **v0.45.0** (semver forward-only, minor bump for new categories).
+
 ## [v0.44.2] -- 2026-04-20
 
 ### Added (root dispatcher --version flag)
