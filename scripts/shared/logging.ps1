@@ -11,6 +11,9 @@ $script:_LogWarnings = [System.Collections.ArrayList]::new()
 $script:_LogName     = $null
 $script:_LogStart    = $null
 $script:_LogsDir     = $null
+# Cached identity fields (resolved once per session, stamped into every event
+# so log lines stay traceable even after grep / split / concat).
+$script:_LogIdentity = $null
 
 function Write-Log {
     param(
@@ -73,10 +76,21 @@ function Write-Log {
     Write-Host ""
 
     # ── Record structured event ──────────────────────────────────────────
-    $event = @{
-        timestamp = (Get-Date -Format "o")
-        level     = $Status
-        message   = $Message
+    # Stamp identity (projectVersion + invokedFrom) onto every event so a
+    # single grepped line is still traceable to its origin script and version.
+    $hasCachedIdentity = $null -ne $script:_LogIdentity
+    if (-not $hasCachedIdentity) {
+        try { $script:_LogIdentity = Get-LogIdentityFields } catch {
+            $script:_LogIdentity = @{ projectVersion = "unknown"; invokedFrom = "unknown" }
+        }
+    }
+    $event = [ordered]@{
+        timestamp      = (Get-Date -Format "o")
+        level          = $Status
+        message        = $Message
+        projectVersion = $script:_LogIdentity.projectVersion
+        invokedFrom    = $script:_LogIdentity.invokedFrom
+        scriptName     = $script:_LogName
     }
     $script:_LogEvents.Add($event) | Out-Null
 
@@ -128,17 +142,26 @@ function Write-FileError {
 
     Write-Log $msg -Level "error"
 
-    # Record structured file-error event
-    $fileErrorEvent = @{
-        timestamp = (Get-Date -Format "o")
-        level     = "fail"
-        type      = "file-error"
-        filePath  = $FilePath
-        operation = $Operation
-        reason    = $Reason
-        module    = $Module
-        fallback  = if ($hasFallback) { $Fallback } else { $null }
-        message   = $msg
+    # Record structured file-error event (also stamped with identity)
+    $hasCachedIdentity = $null -ne $script:_LogIdentity
+    if (-not $hasCachedIdentity) {
+        try { $script:_LogIdentity = Get-LogIdentityFields } catch {
+            $script:_LogIdentity = @{ projectVersion = "unknown"; invokedFrom = "unknown" }
+        }
+    }
+    $fileErrorEvent = [ordered]@{
+        timestamp      = (Get-Date -Format "o")
+        level          = "fail"
+        type           = "file-error"
+        filePath       = $FilePath
+        operation      = $Operation
+        reason         = $Reason
+        module         = $Module
+        fallback       = if ($hasFallback) { $Fallback } else { $null }
+        message        = $msg
+        projectVersion = $script:_LogIdentity.projectVersion
+        invokedFrom    = $script:_LogIdentity.invokedFrom
+        scriptName     = $script:_LogName
     }
     $script:_LogEvents.Add($fileErrorEvent) | Out-Null
     $script:_LogErrors.Add($fileErrorEvent) | Out-Null
@@ -212,6 +235,13 @@ function Initialize-Logging {
     $script:_LogEvents   = [System.Collections.ArrayList]::new()
     $script:_LogErrors   = [System.Collections.ArrayList]::new()
     $script:_LogWarnings = [System.Collections.ArrayList]::new()
+
+    # Resolve identity ONCE per session and cache it. Every event written via
+    # Write-Log / Write-FileError will copy these two fields onto its own
+    # record so individual log lines stay traceable after grep / split / merge.
+    try { $script:_LogIdentity = Get-LogIdentityFields } catch {
+        $script:_LogIdentity = @{ projectVersion = "unknown"; invokedFrom = "unknown" }
+    }
 
     Write-Log "Logging initialised -- events will be saved to: $logsDir\$safeName.json" -Level "info"
 }
@@ -314,9 +344,15 @@ function Save-LogFile {
     $endTime  = Get-Date
     $duration = ($endTime - $script:_LogStart).TotalSeconds
 
-    # Identity fields stamped into every log payload (v0.42.2+)
-    # so .logs/*.json files are self-identifying.
-    $identity = Get-LogIdentityFields
+    # Identity fields stamped into every log payload (v0.42.2+) AND into
+    # every event entry (v0.43.1+). Reuse the cached value from
+    # Initialize-Logging so we don't walk the call stack twice.
+    $hasCachedIdentity = $null -ne $script:_LogIdentity
+    if ($hasCachedIdentity) {
+        $identity = $script:_LogIdentity
+    } else {
+        $identity = Get-LogIdentityFields
+    }
 
     # Main log file
     $logData = [ordered]@{
