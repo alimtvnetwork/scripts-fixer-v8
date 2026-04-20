@@ -106,7 +106,7 @@
     }
 
     # ----- Auto-discovery: probe for newer -vN repos -----------------------
-    $skipDiscovery = $NoUpgrade -or $env:SCRIPTS_FIXER_NO_UPGRADE -eq "1" -or $env:SCRIPTS_FIXER_REDIRECTED -eq "1"
+    $skipDiscovery = $NoUpgrade -or $pinnedVersion -or $env:SCRIPTS_FIXER_NO_UPGRADE -eq "1" -or $env:SCRIPTS_FIXER_REDIRECTED -eq "1"
 
     if ($skipDiscovery) {
         if ($env:SCRIPTS_FIXER_REDIRECTED -eq "1") {
@@ -187,14 +187,21 @@
 
     # ----- Helper: invoke git cleanly (silences stderr-as-error noise) -----
     function Invoke-GitClone {
-        param([string]$RepoUrl, [string]$TargetPath)
+        param([string]$RepoUrl, [string]$TargetPath, [string]$PinnedTag)
         Write-Host "  [GIT] Cloning from : $RepoUrl" -ForegroundColor Cyan
         Write-Host "  [GIT] Cloning into : $TargetPath" -ForegroundColor Cyan
+        if ($PinnedTag) {
+            Write-Host "  [GIT] Pinned tag   : v$PinnedTag (--depth 1)" -ForegroundColor Magenta
+        }
         $errFile = [System.IO.Path]::GetTempFileName()
         try {
             # Redirect stderr to file so PowerShell does NOT raise NativeCommandError
             # on git's normal progress messages. Capture stdout for diagnostics.
-            $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
+            if ($PinnedTag) {
+                $stdout = & git clone --quiet --branch "v$PinnedTag" --depth 1 $RepoUrl $TargetPath 2>$errFile
+            } else {
+                $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
+            }
             $exit = $LASTEXITCODE
             $stderr = if (Test-Path $errFile) { Get-Content $errFile -Raw } else { "" }
             return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr }
