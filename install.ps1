@@ -334,11 +334,15 @@
                 Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
                 Write-Host "          Repo   : $repo" -ForegroundColor Red
                 Write-Host "          Target : $folder" -ForegroundColor Red
+                if ($pinnedVersion) {
+                    Write-Host "          Pinned : v$pinnedVersion" -ForegroundColor Red
+                    Write-Host "          (Tag may not exist in this repo. No silent fallback to main.)" -ForegroundColor DarkGray
+                }
                 if ($r.StdErr) {
                     Write-Host "          Git stderr:" -ForegroundColor DarkGray
                     ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
                 }
-                Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
+                Write-Host "          Verify the repo (and tag, if pinned) exists and your network is reachable." -ForegroundColor DarkGray
                 return
             }
             Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
