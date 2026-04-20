@@ -1,15 +1,20 @@
 # --------------------------------------------------------------------------
 #  Scripts Fixer -- One-liner bootstrap installer
-#  Usage:  irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v7/main/install.ps1 | iex
+#  Usage:  irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.ps1 | iex
 #
-#  Auto-discovery: probes scripts-fixer-vN repos (N = current+1..current+30)
-#  in parallel and redirects to the newest published version.
-#  Spec: spec/install-bootstrap/readme.md
-#  Disable with: -NoUpgrade  or  $env:SCRIPTS_FIXER_NO_UPGRADE = "1"
-#  Version check: -Version (shows current and latest, no install)
+#  Two modes:
+#    1. Rolling (this file on main): probes scripts-fixer-vN repos in parallel
+#       and redirects to the newest published version.
+#    2. Pinned  (released as install-vX.Y.Z.ps1): hardcoded $pinnedVersion --
+#       skips discovery, clones exact tag vX.Y.Z. See spec/versioned-installers.
+#
+#  Spec: spec/install-bootstrap/readme.md  +  spec/versioned-installers/readme.md
+#  Disable discovery with: -NoUpgrade  or  $env:SCRIPTS_FIXER_NO_UPGRADE = "1"
+#  Pin at runtime with:    -Pin "0.43.0"
+#  Version check:          -Version (shows current and latest, no install)
 # --------------------------------------------------------------------------
 & {
-    param([switch]$NoUpgrade, [switch]$Version)
+    param([switch]$NoUpgrade, [switch]$Version, [string]$Pin)
 
     $ErrorActionPreference = "Stop"
 
@@ -22,6 +27,14 @@
     # Fallback only kicks in when CWD is a protected/system directory.
     $fallbackFolder = Join-Path $env:USERPROFILE "scripts-fixer"
 
+    # ----- Pinned-version slot ---------------------------------------------
+    # When non-empty, this installer pins to that exact git tag and SKIPS
+    # discovery + redirect. The release pipeline rewrites this string when
+    # building install-vX.Y.Z.ps1 (see spec/versioned-installers).
+    # Format: bare semver, no leading 'v' (e.g. "0.43.0").
+    $pinnedVersion = ""
+    if ($Pin) { $pinnedVersion = $Pin.Trim().TrimStart('v') }
+
     $probeMax = 30
     if ($env:SCRIPTS_FIXER_PROBE_MAX) {
         $parsed = 0
@@ -32,6 +45,9 @@
 
     Write-Host ""
     Write-Host "  Scripts Fixer -- Bootstrap Installer (v$current)" -ForegroundColor Cyan
+    if ($pinnedVersion) {
+        Write-Host "  [PIN] Pinned to v$pinnedVersion -- discovery disabled." -ForegroundColor Magenta
+    }
     Write-Host ""
 
     # ----- Version check mode (discover + report, no clone) ----------------
@@ -90,7 +106,7 @@
     }
 
     # ----- Auto-discovery: probe for newer -vN repos -----------------------
-    $skipDiscovery = $NoUpgrade -or $env:SCRIPTS_FIXER_NO_UPGRADE -eq "1" -or $env:SCRIPTS_FIXER_REDIRECTED -eq "1"
+    $skipDiscovery = $NoUpgrade -or $pinnedVersion -or $env:SCRIPTS_FIXER_NO_UPGRADE -eq "1" -or $env:SCRIPTS_FIXER_REDIRECTED -eq "1"
 
     if ($skipDiscovery) {
         if ($env:SCRIPTS_FIXER_REDIRECTED -eq "1") {
@@ -171,14 +187,21 @@
 
     # ----- Helper: invoke git cleanly (silences stderr-as-error noise) -----
     function Invoke-GitClone {
-        param([string]$RepoUrl, [string]$TargetPath)
+        param([string]$RepoUrl, [string]$TargetPath, [string]$PinnedTag)
         Write-Host "  [GIT] Cloning from : $RepoUrl" -ForegroundColor Cyan
         Write-Host "  [GIT] Cloning into : $TargetPath" -ForegroundColor Cyan
+        if ($PinnedTag) {
+            Write-Host "  [GIT] Pinned tag   : v$PinnedTag (--depth 1)" -ForegroundColor Magenta
+        }
         $errFile = [System.IO.Path]::GetTempFileName()
         try {
             # Redirect stderr to file so PowerShell does NOT raise NativeCommandError
             # on git's normal progress messages. Capture stdout for diagnostics.
-            $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
+            if ($PinnedTag) {
+                $stdout = & git clone --quiet --branch "v$PinnedTag" --depth 1 $RepoUrl $TargetPath 2>$errFile
+            } else {
+                $stdout = & git clone --quiet $RepoUrl $TargetPath 2>$errFile
+            }
             $exit = $LASTEXITCODE
             $stderr = if (Test-Path $errFile) { Get-Content $errFile -Raw } else { "" }
             return [pscustomobject]@{ ExitCode = $exit; StdOut = $stdout; StdErr = $stderr }
@@ -305,17 +328,21 @@
     if ($removed) {
         Write-Host ""
         Write-Host "  [>>] Direct clone into target..." -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder -IsDryRun:$DryRun
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder -IsDryRun:$DryRun -PinnedTag $pinnedVersion
         if (-not $DryRun) {
             if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
                 Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
                 Write-Host "          Repo   : $repo" -ForegroundColor Red
                 Write-Host "          Target : $folder" -ForegroundColor Red
+                if ($pinnedVersion) {
+                    Write-Host "          Pinned : v$pinnedVersion" -ForegroundColor Red
+                    Write-Host "          (Tag may not exist in this repo. No silent fallback to main.)" -ForegroundColor DarkGray
+                }
                 if ($r.StdErr) {
                     Write-Host "          Git stderr:" -ForegroundColor DarkGray
                     ($r.StdErr -split "`n") | ForEach-Object { if ($_.Trim()) { Write-Host "            $_" -ForegroundColor DarkGray } }
                 }
-                Write-Host "          Verify the repo exists and your network is reachable." -ForegroundColor DarkGray
+                Write-Host "          Verify the repo (and tag, if pinned) exists and your network is reachable." -ForegroundColor DarkGray
                 return
             }
             Write-Host "  [OK] Cloned successfully into $folder" -ForegroundColor Green
@@ -327,7 +354,7 @@
         $tempDir = Join-Path $env:TEMP "scripts-fixer-bootstrap-$stamp"
         Write-Host ""
         Write-Host "  [TEMP] Staging clone path  : $tempDir" -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir -IsDryRun:$DryRun
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir -IsDryRun:$DryRun -PinnedTag $pinnedVersion
         if (-not $DryRun) {
             if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
                 Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red

@@ -212,6 +212,61 @@ jobs:
           Write-Host "SHA256: $hash"
           "path=$checksumFile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
+      - name: Build versioned installers (pinned)
+        id: pinned
+        shell: pwsh
+        run: |
+          # Spec: spec/versioned-installers/readme.md
+          # Emits install-vX.Y.Z.ps1 and install-vX.Y.Z.sh as Release assets.
+          # Each is a copy of install.ps1 / install.sh with the pin slot rewritten
+          # to the released version, so users running them get THAT exact tag.
+          $version = '${{ steps.resolve.outputs.version }}'
+          $outDir  = '.release'
+          $psSrc   = 'install.ps1'
+          $shSrc   = 'install.sh'
+          $psOut   = Join-Path $outDir "install-v$version.ps1"
+          $shOut   = Join-Path $outDir "install-v$version.sh"
+
+          foreach ($p in @($psSrc, $shSrc)) {
+              if (-not (Test-Path $p)) {
+                  Write-Host "::error file=$p::Source installer missing -- cannot build pinned variant"
+                  exit 1
+              }
+          }
+
+          # PowerShell installer -- replace the pin slot
+          $ps = Get-Content $psSrc -Raw
+          $psPinned = $ps -replace '(\$pinnedVersion\s*=\s*)""', ('$1"' + $version + '"')
+          if ($psPinned -eq $ps) {
+              Write-Host "::error file=$psSrc::Pin slot not found in install.ps1 (`$pinnedVersion = `"`")"
+              exit 1
+          }
+          Set-Content -Path $psOut -Value $psPinned -Encoding UTF8 -NoNewline
+          Write-Host "Built $psOut (pinned to v$version)"
+
+          # Bash installer -- replace the pin slot
+          $sh = Get-Content $shSrc -Raw
+          $shPinned = $sh -replace '(PINNED_VERSION=)""', ('$1"' + $version + '"')
+          if ($shPinned -eq $sh) {
+              Write-Host "::error file=$shSrc::Pin slot not found in install.sh (PINNED_VERSION=`"`")"
+              exit 1
+          }
+          Set-Content -Path $shOut -Value $shPinned -Encoding UTF8 -NoNewline
+          Write-Host "Built $shOut (pinned to v$version)"
+
+          # Sanity check: both files must contain the version string
+          foreach ($f in @($psOut, $shOut)) {
+              $content = Get-Content $f -Raw
+              if ($content -notmatch [regex]::Escape($version)) {
+                  Write-Host "::error file=$f::Pin substitution failed -- file does not contain v$version"
+                  exit 1
+              }
+          }
+
+          "ps_path=$psOut" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "sh_path=$shOut" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "[ OK ] Pinned installers built and verified for v$version"
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -222,3 +277,5 @@ jobs:
           files: |
             ${{ steps.artifact.outputs.path }}
             ${{ steps.checksum.outputs.path }}
+            ${{ steps.pinned.outputs.ps_path }}
+            ${{ steps.pinned.outputs.sh_path }}

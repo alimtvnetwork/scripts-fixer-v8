@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------------
 #  Scripts Fixer -- One-liner bootstrap installer (Unix/macOS)
-#  Usage:  curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v7/main/install.sh | bash
+#  Usage:  curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.sh | bash
 #
-#  Auto-discovery: probes scripts-fixer-vN repos (N = current+1..current+30)
-#  in parallel and redirects to the newest published version.
-#  Spec: spec/install-bootstrap/readme.md
-#  Disable with: --no-upgrade  or  SCRIPTS_FIXER_NO_UPGRADE=1
-#  Version check: --version (shows current and latest, no install)
-#  Dry-run:       --dry-run  (prints every step but mutates nothing)
+#  Two modes:
+#    1. Rolling (this file on main): probes scripts-fixer-vN repos in parallel
+#       and redirects to the newest published version.
+#    2. Pinned  (released as install-vX.Y.Z.sh): hardcoded PINNED_VERSION --
+#       skips discovery, clones exact tag vX.Y.Z. See spec/versioned-installers.
+#
+#  Spec: spec/install-bootstrap/readme.md  +  spec/versioned-installers/readme.md
+#  Disable discovery with: --no-upgrade  or  SCRIPTS_FIXER_NO_UPGRADE=1
+#  Pin at runtime with:    --pin 0.43.0
+#  Version check:          --version (shows current and latest, no install)
+#  Dry-run:                --dry-run  (prints every step but mutates nothing)
 # --------------------------------------------------------------------------
 set -e
 
@@ -18,6 +23,13 @@ CURRENT=8   # <-- bump this when this file is copied into a new -vN repo
 FALLBACK="$HOME/scripts-fixer"
 REPO="https://github.com/$OWNER/$BASE-v$CURRENT.git"
 
+# -- Pinned-version slot ------------------------------------------------------
+# When non-empty, this installer pins to that exact git tag and SKIPS
+# discovery + redirect. The release pipeline rewrites this string when
+# building install-vX.Y.Z.sh (see spec/versioned-installers).
+# Format: bare semver, no leading 'v' (e.g. "0.43.0").
+PINNED_VERSION=""
+
 PROBE_MAX="${SCRIPTS_FIXER_PROBE_MAX:-30}"
 if ! [[ "$PROBE_MAX" =~ ^[0-9]+$ ]] || [ "$PROBE_MAX" -lt 1 ] || [ "$PROBE_MAX" -gt 100 ]; then
     PROBE_MAX=30
@@ -26,17 +38,31 @@ fi
 NO_UPGRADE=0
 VERSION_MODE=0
 DRY_RUN=0
-for arg in "$@"; do
+ARGS=("$@")
+i=0
+while [ $i -lt ${#ARGS[@]} ]; do
+    arg="${ARGS[$i]}"
     case "$arg" in
         --no-upgrade) NO_UPGRADE=1 ;;
         --version) VERSION_MODE=1 ;;
         --dry-run) DRY_RUN=1 ;;
+        --pin)
+            i=$((i+1))
+            if [ $i -lt ${#ARGS[@]} ]; then
+                PINNED_VERSION="${ARGS[$i]#v}"
+            fi
+            ;;
+        --pin=*) PINNED_VERSION="${arg#--pin=}"; PINNED_VERSION="${PINNED_VERSION#v}" ;;
     esac
+    i=$((i+1))
 done
 if [ "${SCRIPTS_FIXER_NO_UPGRADE:-0}" = "1" ]; then NO_UPGRADE=1; fi
 
 echo ""
 echo "  Scripts Fixer -- Bootstrap Installer (v$CURRENT)"
+if [ -n "$PINNED_VERSION" ]; then
+    echo "  [PIN] Pinned to v$PINNED_VERSION -- discovery disabled."
+fi
 echo ""
 
 if [ "$DRY_RUN" = "1" ]; then
@@ -76,7 +102,9 @@ if [ "$VERSION_MODE" = "1" ]; then
 fi
 
 # -- Auto-discovery: probe for newer -vN repos -------------------------------
-if [ "${SCRIPTS_FIXER_REDIRECTED:-0}" = "1" ]; then
+if [ -n "$PINNED_VERSION" ]; then
+    echo "  [SKIP] Auto-discovery skipped (pinned to v$PINNED_VERSION)."
+elif [ "${SCRIPTS_FIXER_REDIRECTED:-0}" = "1" ]; then
     echo "  [SKIP] Auto-discovery skipped (already redirected)."
 elif [ "$NO_UPGRADE" = "1" ]; then
     echo "  [SKIP] Auto-discovery disabled."
@@ -202,19 +230,30 @@ invoke_git_clone() {
     echo "  [GIT] Cloning from : $repo_url"
     echo "  [GIT] Cloning into : $target_path"
 
+    local clone_args=(--quiet)
+    if [ -n "$PINNED_VERSION" ]; then
+        clone_args=(--quiet --branch "v$PINNED_VERSION" --depth 1)
+        echo "  [GIT] Pinned tag   : v$PINNED_VERSION (--depth 1)"
+    fi
+
     if [ "$DRY_RUN" = "1" ]; then
-        echo "  [DRYRUN] git clone --quiet $repo_url $target_path  (skipped)"
+        echo "  [DRYRUN] git clone ${clone_args[*]} $repo_url $target_path  (skipped)"
         return 0
     fi
 
     local err_file
     err_file="$(mktemp 2>/dev/null || echo "/tmp/scripts-fixer-git-err.$$")"
 
-    git clone --quiet "$repo_url" "$target_path" 2>"$err_file"
+    git clone "${clone_args[@]}" "$repo_url" "$target_path" 2>"$err_file"
     local exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
         echo "  [ERROR] git clone exit code: $exit_code"
+        if [ -n "$PINNED_VERSION" ]; then
+            echo "          Pinned tag : v$PINNED_VERSION"
+            echo "          Repo       : $repo_url"
+            echo "          (Tag may not exist in this repo. No silent fallback to main.)"
+        fi
         if [ -s "$err_file" ]; then
             echo "          Git stderr:"
             sed 's/^/            /' "$err_file"

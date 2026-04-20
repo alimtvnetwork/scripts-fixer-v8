@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.44.0] -- 2026-04-20
+
+### Added (versioned installers -- pin-on-release)
+
+- **`spec/versioned-installers/readme.md`** -- approved spec describing the pin-on-release installer flow. Written first, before any code, per the standing process.
+- **`install.ps1` pin slot**: new `$pinnedVersion = ""` configuration line near the top, plus a `-Pin <X.Y.Z>` CLI parameter that overrides at runtime. When pinned, the installer prints `[PIN] Pinned to vX.Y.Z -- discovery disabled.`, skips the entire probe/redirect block, and runs `git clone --quiet --branch vX.Y.Z --depth 1 <repo> <folder>`.
+- **`install.sh` pin slot**: matching `PINNED_VERSION=""` slot and `--pin <X.Y.Z>` flag (`--pin=X.Y.Z` form also supported). Same skip-discovery + branch-clone behavior on Unix/macOS.
+- **Pinned-clone failure messaging**: when a pinned tag does not exist on the target repo, both installers print the exact pinned version + repo URL and explicitly state there is no silent fallback to `main`. CODE RED applied.
+- **Release pipeline `Build versioned installers` step** in `.github/workflows/release.yml`: after the ZIP is built, sed-replaces the pin slot in `install.ps1` and `install.sh` with the released version, writes them as `.release/install-vX.Y.Z.ps1` and `.release/install-vX.Y.Z.sh`, and verifies the substitution succeeded. The release fails (`::error`) if either pin slot is missing or the substitution does not include the version string.
+- **Release assets**: every GitHub Release now publishes 4 files instead of 2 -- the source ZIP, its SHA256, the pinned PowerShell installer, and the pinned Bash installer. Users copy-pasting the snippet from a release page now get **that exact tag**, every time, with no probe and no redirect.
+
+### Behavior
+
+- Rolling installers on `main` (the canonical one-liner) keep their existing discovery + redirect behavior. Nothing changes for users who run `irm .../main/install.ps1 | iex` or `curl -fsSL .../main/install.sh | bash`.
+- Discovery is also skipped when `$pinnedVersion` / `PINNED_VERSION` is set, in addition to the existing `-NoUpgrade` / `--no-upgrade` flags and `SCRIPTS_FIXER_NO_UPGRADE=1` env var.
+- `-Pin` / `--pin` works on the rolling installer too -- handy for testing a specific version without copying the release URL.
+
+### Bumped
+
+- `scripts/version.json`: 0.43.0 -> 0.44.0.
+
 ## [v0.43.0] -- 2026-04-20
 
 ### Added (script footer + no-warranty notice)
