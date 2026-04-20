@@ -102,7 +102,9 @@ if [ "$VERSION_MODE" = "1" ]; then
 fi
 
 # -- Auto-discovery: probe for newer -vN repos -------------------------------
-if [ "${SCRIPTS_FIXER_REDIRECTED:-0}" = "1" ]; then
+if [ -n "$PINNED_VERSION" ]; then
+    echo "  [SKIP] Auto-discovery skipped (pinned to v$PINNED_VERSION)."
+elif [ "${SCRIPTS_FIXER_REDIRECTED:-0}" = "1" ]; then
     echo "  [SKIP] Auto-discovery skipped (already redirected)."
 elif [ "$NO_UPGRADE" = "1" ]; then
     echo "  [SKIP] Auto-discovery disabled."
