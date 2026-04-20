@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.43.0] -- 2026-04-20
+
+### Added (script footer + no-warranty notice)
+
+- **Universal script footer**: every script that uses the shared logging system now prints a 3-line footer at the end of every run, showing:
+  - `scripts-fixer v<version>` (read from `scripts/version.json`)
+  - The full file path of the script that was invoked (resolved from PowerShell call stack, skipping `logging.ps1` itself)
+  - A short no-warranty reminder pointing to `readme.md`
+- **README banner notice**: added a one-line "No warranty -- use at your own risk" callout directly under the badges, linking to the new Disclaimer section.
+- **README Disclaimer section**: new top-level `## Disclaimer` section above the License with the full statement -- covers admin-level system changes, destructive cleanup, no support, and the responsibility of reading scripts before running them.
+
+### Changed
+
+- Bumped `scripts/version.json` from `0.41.0` to `0.43.0` (consolidating the v0.42.x OS Clean Phase 2 + consent management work that shipped earlier under a single visible release in version.json).
+- README changelog badge bumped to v0.43.0.
+
 ## [v0.42.0] -- 2026-04-20
 
 ### Added (OS Clean Phase 2 -- 4 new categories, all aggregate)
