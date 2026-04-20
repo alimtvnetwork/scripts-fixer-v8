@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [v0.44.1] -- 2026-04-20
+
+### Added (PowerShell execution policy -- run with full access)
+
+- **`install.ps1`**: bootstrap installer now self-applies `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force` at startup, so every `.\run.ps1` and `scripts/**/run.ps1` call spawned from it runs without policy prompts. Scope is **Process only** -- zero permanent change to the user's machine policy. Failure to set the policy is logged as a `[WARN]` with the exact remediation command, never aborts the install.
+- **`readme.md` Quick Start "Heads up" callout**: explicit, copy-pasteable block showing the three blessed ways to enable script execution -- per-session bypass (`-Scope Process Bypass`), elevated one-shot (`Start-Process powershell -Verb RunAs -ArgumentList ...`), and persistent per-user (`-Scope CurrentUser RemoteSigned`). Plus the `Get-ChildItem -Recurse | Unblock-File` one-liner for ZIP downloads (Mark-of-the-Web).
+- **Manual-clone snippet** in the readme now includes the per-session bypass + `Unblock-File` lines so first-time users do not get blocked by SmartScreen / AppLocker / default `Restricted` policy.
+- **One-liner fallback**: an alternative one-liner is documented that prepends `Set-ExecutionPolicy -Scope Process Bypass -Force; ` for the rare case where even `irm | iex` is blocked by group policy.
+
+### Bumped
+
+- `scripts/version.json`: 0.44.0 -> 0.44.1.
+
 ## [v0.44.0] -- 2026-04-20
 
 ### Added (versioned installers -- pin-on-release)
