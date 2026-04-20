@@ -230,19 +230,30 @@ invoke_git_clone() {
     echo "  [GIT] Cloning from : $repo_url"
     echo "  [GIT] Cloning into : $target_path"
 
+    local clone_args=(--quiet)
+    if [ -n "$PINNED_VERSION" ]; then
+        clone_args=(--quiet --branch "v$PINNED_VERSION" --depth 1)
+        echo "  [GIT] Pinned tag   : v$PINNED_VERSION (--depth 1)"
+    fi
+
     if [ "$DRY_RUN" = "1" ]; then
-        echo "  [DRYRUN] git clone --quiet $repo_url $target_path  (skipped)"
+        echo "  [DRYRUN] git clone ${clone_args[*]} $repo_url $target_path  (skipped)"
         return 0
     fi
 
     local err_file
     err_file="$(mktemp 2>/dev/null || echo "/tmp/scripts-fixer-git-err.$$")"
 
-    git clone --quiet "$repo_url" "$target_path" 2>"$err_file"
+    git clone "${clone_args[@]}" "$repo_url" "$target_path" 2>"$err_file"
     local exit_code=$?
 
     if [ $exit_code -ne 0 ]; then
         echo "  [ERROR] git clone exit code: $exit_code"
+        if [ -n "$PINNED_VERSION" ]; then
+            echo "          Pinned tag : v$PINNED_VERSION"
+            echo "          Repo       : $repo_url"
+            echo "          (Tag may not exist in this repo. No silent fallback to main.)"
+        fi
         if [ -s "$err_file" ]; then
             echo "          Git stderr:"
             sed 's/^/            /' "$err_file"
