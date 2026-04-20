@@ -328,7 +328,7 @@
     if ($removed) {
         Write-Host ""
         Write-Host "  [>>] Direct clone into target..." -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder -IsDryRun:$DryRun
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $folder -IsDryRun:$DryRun -PinnedTag $pinnedVersion
         if (-not $DryRun) {
             if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $folder ".git"))) {
                 Write-Host "  [ERROR] Clone failed (exit $($r.ExitCode))" -ForegroundColor Red
@@ -350,7 +350,7 @@
         $tempDir = Join-Path $env:TEMP "scripts-fixer-bootstrap-$stamp"
         Write-Host ""
         Write-Host "  [TEMP] Staging clone path  : $tempDir" -ForegroundColor Yellow
-        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir -IsDryRun:$DryRun
+        $r = Invoke-GitClone -RepoUrl $repo -TargetPath $tempDir -IsDryRun:$DryRun -PinnedTag $pinnedVersion
         if (-not $DryRun) {
             if ($r.ExitCode -ne 0 -or -not (Test-Path (Join-Path $tempDir ".git"))) {
                 Write-Host "  [ERROR] Temp clone failed (exit $($r.ExitCode))" -ForegroundColor Red
