@@ -1,15 +1,20 @@
 # --------------------------------------------------------------------------
 #  Scripts Fixer -- One-liner bootstrap installer
-#  Usage:  irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v7/main/install.ps1 | iex
+#  Usage:  irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.ps1 | iex
 #
-#  Auto-discovery: probes scripts-fixer-vN repos (N = current+1..current+30)
-#  in parallel and redirects to the newest published version.
-#  Spec: spec/install-bootstrap/readme.md
-#  Disable with: -NoUpgrade  or  $env:SCRIPTS_FIXER_NO_UPGRADE = "1"
-#  Version check: -Version (shows current and latest, no install)
+#  Two modes:
+#    1. Rolling (this file on main): probes scripts-fixer-vN repos in parallel
+#       and redirects to the newest published version.
+#    2. Pinned  (released as install-vX.Y.Z.ps1): hardcoded $pinnedVersion --
+#       skips discovery, clones exact tag vX.Y.Z. See spec/versioned-installers.
+#
+#  Spec: spec/install-bootstrap/readme.md  +  spec/versioned-installers/readme.md
+#  Disable discovery with: -NoUpgrade  or  $env:SCRIPTS_FIXER_NO_UPGRADE = "1"
+#  Pin at runtime with:    -Pin "0.43.0"
+#  Version check:          -Version (shows current and latest, no install)
 # --------------------------------------------------------------------------
 & {
-    param([switch]$NoUpgrade, [switch]$Version)
+    param([switch]$NoUpgrade, [switch]$Version, [string]$Pin)
 
     $ErrorActionPreference = "Stop"
 
@@ -22,6 +27,14 @@
     # Fallback only kicks in when CWD is a protected/system directory.
     $fallbackFolder = Join-Path $env:USERPROFILE "scripts-fixer"
 
+    # ----- Pinned-version slot ---------------------------------------------
+    # When non-empty, this installer pins to that exact git tag and SKIPS
+    # discovery + redirect. The release pipeline rewrites this string when
+    # building install-vX.Y.Z.ps1 (see spec/versioned-installers).
+    # Format: bare semver, no leading 'v' (e.g. "0.43.0").
+    $pinnedVersion = ""
+    if ($Pin) { $pinnedVersion = $Pin.Trim().TrimStart('v') }
+
     $probeMax = 30
     if ($env:SCRIPTS_FIXER_PROBE_MAX) {
         $parsed = 0
@@ -32,6 +45,9 @@
 
     Write-Host ""
     Write-Host "  Scripts Fixer -- Bootstrap Installer (v$current)" -ForegroundColor Cyan
+    if ($pinnedVersion) {
+        Write-Host "  [PIN] Pinned to v$pinnedVersion -- discovery disabled." -ForegroundColor Magenta
+    }
     Write-Host ""
 
     # ----- Version check mode (discover + report, no clone) ----------------
