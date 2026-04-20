@@ -18,6 +18,20 @@
 
     $ErrorActionPreference = "Stop"
 
+    # ----- PowerShell execution policy -- bypass for THIS process only ----
+    # The piped `irm | iex` form already inherits the caller's policy, but when
+    # users save and re-run this file from disk, Windows may block it. We force
+    # Bypass at Process scope so every child .\run.ps1 / scripts/**/run.ps1 call
+    # spawned from this installer runs without re-prompting.
+    # Scope: Process -- ZERO permanent change to the user's machine policy.
+    try {
+        Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction Stop
+    } catch {
+        Write-Host "  [WARN] Could not set execution policy for this process: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "         If subsequent .\run.ps1 calls fail, run manually:" -ForegroundColor DarkGray
+        Write-Host "           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force" -ForegroundColor DarkGray
+    }
+
     # ----- Configuration ----------------------------------------------------
     $owner    = "alimtvnetwork"
     $baseName = "scripts-fixer"

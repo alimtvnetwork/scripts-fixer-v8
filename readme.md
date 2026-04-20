@@ -20,10 +20,29 @@
 
 ## Quick Start
 
+> **Heads up -- PowerShell execution policy.** Windows blocks unsigned `.ps1` files by default. The one-liner below already bypasses this for that single command. For **manual `.\run.ps1` calls** (or any local script in this repo), run **one** of these in your PowerShell window first:
+>
+> ```powershell
+> # Recommended -- bypass policy for THIS PowerShell session only (safest, no permanent change)
+> Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+>
+> # OR -- launch a fresh elevated PowerShell with bypass baked in (one-shot)
+> Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass'
+>
+> # OR -- persist for your user account (run once, survives reboots)
+> Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+> ```
+>
+> If you downloaded the repo as a ZIP, also run `Get-ChildItem -Recurse | Unblock-File` once inside the extracted folder to remove the Mark-of-the-Web that Windows attaches to internet downloads.
+
 ### One-liner install (Windows)
 
 ```powershell
+# Standard one-liner (works as-is -- policy bypass is implicit for piped commands)
 irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.ps1 | iex
+
+# If your shell still complains, force-bypass for this session and retry:
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force; irm https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main/install.ps1 | iex
 ```
 
 ### One-liner install (Unix / macOS)
@@ -37,6 +56,9 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/scripts-fixer-v8/main
 ```powershell
 git clone https://github.com/alimtvnetwork/scripts-fixer-v8.git scripts-fixer
 cd scripts-fixer
+# One-time policy bypass for this PowerShell session (see "Heads up" above)
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+Get-ChildItem -Recurse | Unblock-File   # only needed if you downloaded a ZIP
 ```
 
 ```powershell
